@@ -1,0 +1,653 @@
+openapi: "3.0.2"
+info:
+  title: DreamScore API
+  version: "0.0.1"
+servers:
+  - url: https://api.dreamscore.com/v1
+
+tags:
+  - name: /users
+    description: Operations related to the users
+  - name: /seasons
+    description: Operations related to the seasons
+  - name: /leagues
+    description: Operations related to the leagues
+  - name: /leagues/users
+    description: Operations related to the users in the leagues
+  - name: /leagues/players
+    description: Operations related to the players
+  - name: /leagues/transfers
+    description: Operations related to the transfers
+  - name: /leagues/transfers/offers
+    description: Operations related to the offers for the transfers
+
+paths:
+  /users:
+    post:
+      tags:
+        - /users
+
+  /users/{userId}:
+    get:
+      tags:
+        - /users
+
+    patch:
+      tags:
+        - /users
+
+  /seasons/{seasonId}/matchdays:
+    get:
+      tags:
+        - /seasons
+
+  /seasons/{seasonId}/matchdays/{matchdayId}/table: # point calculation based first season matchday until path matchdayId
+    get: # TODO: Query param? bundesliga, matchday points, season points
+      tags:
+        - /seasons
+
+  /seasons/{seasonId}/matchdays/{matchdayId}/top-players:
+    get: # TODO: Query param? total points, average points, points per minute, client filter: gk, fwd, md, df
+      tags:
+        - /seasons
+
+  /seasons/{seasonId}/matchdays/{matchdayId}/point-feed:
+    get:
+      tags:
+        - /seasons
+      parameters:
+        - name: matchdayId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+            description: The ID of the matchday
+        - in: query
+          name: playerId
+          required: false
+          schema:
+            type: integer
+            format: int64
+            description: The ID of the player
+
+  /seasons/{seasonId}/matchdays/{matchdayId}/fixtures:
+    get:
+      tags:
+        - /seasons
+
+  /seasons/{seasonId}/matchdays/{matchdayId}/fixtures/{fixtureId}:
+    get:
+      tags:
+        - /seasons
+
+  /leagues:
+    get:
+      tags:
+        - /leagues
+
+    post:
+      tags:
+        - /leagues
+
+  /leagues/{leagueId}:
+    get:
+      tags:
+        - /leagues
+      parameters:
+        - $ref: "#/components/parameters/leagueId"
+
+    patch:
+      tags:
+        - /leagues
+      parameters:
+        - $ref: "#/components/parameters/leagueId"
+
+  /leagues/{leagueId}/ranking:
+    get:
+      tags:
+        - /leagues
+      parameters:
+        - $ref: "#/components/parameters/leagueId"
+
+  /leagues/{leagueId}/users/{userId}:
+    get:
+      tags:
+        - /leagues/users
+
+    post:
+      tags:
+        - /leagues/users
+
+    delete:
+      tags:
+        - /leagues/users
+
+  /leagues/{leagueId}/users/{userId}/information:
+    get:
+      tags:
+        - /leagues/users
+
+  /leagues/{leagueId}/users/{userId}/points:
+    get:
+      tags:
+        - /leagues/users
+
+  /leagues/{leagueId}/users/{userId}/market:
+    get:
+      tags:
+        - /leagues/users
+
+  /leagues/{leagueId}/users/{userId}/lineup:
+    get:
+      tags:
+        - /leagues/users
+
+    patch:
+      tags:
+        - /leagues/users
+
+  /leagues/{leagueId}/users/{userId}/players:
+    get:
+      tags:
+        - /leagues/users
+
+  /leagues/{leagueId}/users/{userId}/transfers:
+    get:
+      tags:
+        - /leagues/users
+
+  /leagues/{leagueId}/players/{playerId}:
+    get:
+      tags:
+        - /leagues/players
+
+  /leagues/{leagueId}/players/{playerId}/information:
+    get:
+      tags:
+        - /leagues/players
+
+  /leagues/{leagueId}/players/{playerId}/points:
+    get:
+      tags:
+        - /leagues/players
+      summary: Get player points
+      parameters:
+        - $ref: "#/components/parameters/playerId"
+      responses:
+        "200":
+          description: The points of the player
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/playerPoints"
+
+  /leagues/{leagueId}/players/{playerId}/market:
+    get:
+      tags:
+        - /leagues/players
+      summary: Get player market details
+      parameters:
+        - $ref: "#/components/parameters/playerId"
+      responses:
+        "200":
+          description: The market details of the player
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/playerMarket"
+
+  /leagues/{leagueId}/players/{playerId}/transfers:
+    get:
+      tags:
+        - /leagues/players
+
+  /leagues/{leagueId}/transfers:
+    get:
+      tags:
+        - /leagues/transfers
+      summary: Get all transfers
+      parameters:
+        - $ref: "#/components/parameters/leagueId"
+        - name: status
+          in: query
+          schema:
+            type: integer # TODO: clarify int or string
+            format: int64
+            description: The status of the transfer (0 - active, 1 - completed)
+      responses:
+        "200":
+          description: A list of transfers
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/transfer"
+
+    post:
+      tags:
+        - /leagues/transfers
+      summary: Add transfer
+      parameters:
+        - $ref: "#/components/parameters/leagueId"
+      requestBody:
+        description: The details of the player and the price
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                playerId:
+                  type: integer
+                  format: int64
+                  description: The ID of the player
+                price:
+                  type: number
+                  format: float
+                  description: The price of the player
+      responses:
+        "201":
+          description: The transfer was added successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    format: int64
+                    description: The ID of the transfer
+
+  /leagues/{leagueId}/transfers/{transferId}:
+    get:
+      tags:
+        - /leagues/transfers
+      summary: Get transfer details
+      parameters:
+        - $ref: "#/components/parameters/leagueId"
+        - $ref: "#/components/parameters/transferId"
+      responses:
+        "200":
+          description: The details of the transfer
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/transfer"
+
+    patch:
+      tags:
+        - /leagues/transfers
+      summary: Update transfer price
+      parameters:
+        - $ref: "#/components/parameters/leagueId"
+        - $ref: "#/components/parameters/transferId"
+      requestBody:
+        description: The new price for the transfer
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                price:
+                  type: number
+                  format: float
+                  description: The new price for the player
+      responses:
+        "204":
+          description: The price was updated successfully
+
+    delete:
+      tags:
+        - /leagues/transfers
+      summary: Remove transfer
+      parameters:
+        - $ref: "#/components/parameters/leagueId"
+        - $ref: "#/components/parameters/transferId"
+      responses:
+        "204":
+          description: The transfer was removed successfully
+
+    post:
+      tags:
+        - /leagues/transfers/offers
+      summary: Place offer
+      operationId: placeOffer
+      parameters:
+        - $ref: "#/components/parameters/leagueId"
+        - $ref: "#/components/parameters/transferId"
+      requestBody:
+        description: The details of the offer
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                price:
+                  type: number
+                  format: float
+                  description: The price of the offer
+      responses:
+        "201":
+          description: The offer was placed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    format: int64
+                    description: The ID of the offer
+
+  /leagues/{leagueId}/transfers/{transferId}/offers/{offerId}:
+    patch:
+      tags:
+        - /leagues/transfers/offers
+      summary: Update offer
+      operationId: updateOffer
+      parameters:
+        - $ref: "#/components/parameters/leagueId"
+        - $ref: "#/components/parameters/transferId"
+        - $ref: "#/components/parameters/offerId"
+      requestBody:
+        description: The new price for the offer
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                price:
+                  type: number
+                  format: float
+                  description: The new price for the offer
+      responses:
+        "204":
+          description: The price was updated successfully
+
+    delete:
+      tags:
+        - /leagues/transfers/offers
+      summary: Decline offer
+      operationId: declineOffer
+      parameters:
+        - $ref: "#/components/parameters/leagueId"
+        - $ref: "#/components/parameters/transferId"
+        - $ref: "#/components/parameters/offerId"
+      responses:
+        "204":
+          description: The offer was declined successfully
+
+components:
+  parameters:
+    leagueId:
+      in: path
+      name: leagueId
+      required: true
+      schema:
+        type: integer
+        format: int64
+        description: The ID of the league
+
+    transferId:
+      in: path
+      name: transferId
+      required: true
+      schema:
+        type: integer
+        format: int64
+        description: The ID of the transfer
+
+    playerId:
+      in: path
+      name: playerId
+      required: true
+      schema:
+        type: integer
+        format: int64
+        description: The ID of the player
+
+    offerId:
+      in: path
+      name: offerId
+      required: true
+      schema:
+        type: integer
+        format: int64
+        description: The ID of the offer
+
+    userId:
+      in: path
+      name: userId
+      required: true
+      schema:
+        type: integer
+        format: int64
+        description: The ID of the user
+
+  schemas:
+    playerPoints:
+      type: array
+      items:
+        type: object
+        properties:
+          season:
+            type: string
+            description: The season of the points
+          pointsTotal:
+            type: integer
+            format: int64
+            description: The total points of the player
+          pointsAverage:
+            type: number
+            format: float
+            description: The average points of the player
+          minutesPlayedAverage:
+            type: integer
+            format: int64
+            description: The average minutes played by the player
+          matchDays:
+            type: array
+            items:
+              type: object
+              properties:
+                day:
+                  type: integer
+                  format: int64
+                  description: The match day of the points
+                dateTime:
+                  type: string
+                  format: date-time
+                  description: The date and time of the match
+                points:
+                  type: integer
+                  format: int64
+                  description: The points of the player
+                minutesPlayed:
+                  type: integer
+                  format: int64
+                  description: The minutes played by the player
+                goals:
+                  type: integer
+                  format: int64
+                  description: The goals of the player
+                assists:
+                  type: integer
+                  format: int64
+                  description: The assists of the player
+                redCards:
+                  type: integer
+                  format: int64
+                  description: The red cards of the player
+                yellowCards:
+                  type: integer
+                  format: int64
+                  description: The yellow cards of the player
+                startingLineUp:
+                  type: boolean
+                  description: If the player was in the starting line-up
+                firstTeamId:
+                  type: integer
+                  format: int64
+                  description: The ID of the first team
+                firstTeamScore:
+                  type: integer
+                  format: int64
+                  description: The score of the first team
+                secondTeamId:
+                  type: integer
+                  format: int64
+                  description: The ID of the second team
+                secondTeamScore:
+                  type: integer
+                  format: int64
+                  description: The score of the second team
+
+    playerMarket:
+      type: object
+      properties:
+        value:
+          type: number
+          format: float
+          description: The market value of the player
+        valueTrend:
+          type: integer
+          format: int64
+          description: The market value trend of the player (0 - stable, 1 - up, 2 - down)
+        valueHighest:
+          type: number
+          format: float
+          description: The highest market value of the player
+        valueHighestDate:
+          type: string
+          format: date
+          description: The date the market value was the highest
+        valueLowest:
+          type: number
+          format: float
+          description: The lowest market value of the player
+        valueLowestDate:
+          type: string
+          format: date
+          description: The date the market value was the lowest
+        history:
+          type: array
+          items:
+            type: object
+            properties:
+              date:
+                type: string
+                format: date
+                description: The date of the market value
+              value:
+                type: number
+                format: float
+                description: The market value of the player
+
+    transfer:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: The ID of the transfer
+        price:
+          type: number
+          format: float
+          description: The price of the transfer
+        entryDateTime:
+          type: string
+          format: date-time
+          description: The date the transfer was added
+        exitDateTime:
+          type: string
+          format: date-time
+          description: The date the transfer will be removed
+        player:
+          $ref: "#/components/schemas/transferPlayer"
+        user:
+          $ref: "#/components/schemas/transferUser"
+        offers:
+          type: array
+          items:
+            $ref: "#/components/schemas/transferOffer"
+
+    transferPlayer:
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: The ID of the player
+        firstName:
+          type: string
+          description: The first name of the player
+        lastName:
+          type: string
+          description: The last name of the player
+        portraitUrl:
+          type: string
+          format: uri
+          description: The URL of the player's portrait
+        status:
+          type: integer
+          format: int64
+          description: The status of the player (0 - fit, 1 - injured, 2 - stricken)
+        position:
+          type: integer
+          format: int64
+          description: The position of the player (0 - goalkeeper - gk, 1 - defense - def, 2 - midfield - mf, 3 - forward - fwd)
+        number:
+          type: integer
+          format: int64
+          description: The number of the player
+        totalPoints:
+          type: integer
+          format: int64
+          description: The total points of the player
+        averagePoints:
+          type: number
+          format: float
+          description: The average points of the player
+        marketValue:
+          type: number
+          format: float
+          description: The market value of the player
+        marketValueTrend:
+          type: integer
+          format: int64
+          description: The market value trend of the player (0 - stable, 1 - up, 2 - down)
+
+    transferOffer:
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: The ID of the offer
+        price:
+          type: number
+          format: float
+          description: The price of the offer
+        placedDateTime:
+          type: string
+          format: date-time
+          description: The date the offer was placed
+        user:
+          $ref: "#/components/schemas/transferUser"
+
+    transferUser:
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: The ID of the user who placed the offer
+        name:
+          type: string
+          description: The name of the user who placed the offer
+        portraitUrl:
+          type: string
+          format: uri
+          description: The URL of the user's portrait
