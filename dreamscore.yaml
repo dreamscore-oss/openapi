@@ -14,34 +14,38 @@ paths:
         - Market
       summary: Get all players in the market
       parameters:
-        - in: path
-          name: league_id
-          required: true
-          schema:
-            type: integer
-            format: int64
-          description: The ID of the league
+        - $ref: "#/components/parameters/leagueId"
+      responses:
+        "200":
+          description: A list of players in the market
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/marketPlayer"
 
   /leagues/{league_id}/market/players/{player_id}:
+    get:
+      tags:
+        - Market
+      summary: Get player details
+      parameters:
+        - $ref: "#/components/parameters/leagueId"
+        - $ref: "#/components/parameters/playerId"
+      responses:
+        "200":
+          description: The details of the player
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/marketPlayer"
+
     post:
       tags:
         - Market
       summary: Add player to market
       parameters:
-        - in: path
-          name: league_id
-          required: true
-          schema:
-            type: integer
-            format: int64
-          description: The ID of the league
-        - in: path
-          name: player_id
-          required: true
-          schema:
-            type: integer
-            format: int64
-          description: The ID of the player
+        - $ref: "#/components/parameters/leagueId"
+        - $ref: "#/components/parameters/playerId"
       requestBody:
         description: The details of the player and the price
         required: true
@@ -54,26 +58,17 @@ paths:
                   type: number
                   format: float
                   description: The price of the player
+      responses:
+        "201":
+          description: The player was added to the market successfully
 
-    put:
+    patch:
       tags:
         - Market
       summary: Update player price
       parameters:
-        - in: path
-          name: league_id
-          required: true
-          schema:
-            type: integer
-            format: int64
-          description: The ID of the league
-        - in: path
-          name: player_id
-          required: true
-          schema:
-            type: integer
-            format: int64
-          description: The ID of the player
+        - $ref: "#/components/parameters/leagueId"
+        - $ref: "#/components/parameters/playerId"
       requestBody:
         description: The new price for the player
         required: true
@@ -86,26 +81,20 @@ paths:
                   type: number
                   format: float
                   description: The new price for the player
+      responses:
+        "204":
+          description: The price was updated successfully
 
     delete:
       tags:
         - Market
       summary: Remove player from market
       parameters:
-        - in: path
-          name: league_id
-          required: true
-          schema:
-            type: integer
-            format: int64
-          description: The ID of the league
-        - in: path
-          name: player_id
-          required: true
-          schema:
-            type: integer
-            format: int64
-          description: The ID of the player
+        - $ref: "#/components/parameters/leagueId"
+        - $ref: "#/components/parameters/playerId"
+      responses:
+        "204":
+          description: The player was removed from the market successfully
 
   /leagues/{league_id}/market/players/{player_id}/offers:
     get:
@@ -113,20 +102,8 @@ paths:
         - Market
       summary: Get all offers for a player
       parameters:
-        - in: path
-          name: league_id
-          required: true
-          schema:
-            type: integer
-            format: int64
-          description: The ID of the league
-        - in: path
-          name: player_id
-          required: true
-          schema:
-            type: integer
-            format: int64
-          description: The ID of the player
+        - $ref: "#/components/parameters/leagueId"
+        - $ref: "#/components/parameters/playerId"
       responses:
         "200":
           description: A list of offers for the player
@@ -135,26 +112,32 @@ paths:
               schema:
                 type: array
                 items:
-                  type: object
-                  properties:
-                    offer_id:
-                      type: integer
-                      format: int64
-                      description: The ID of the offer
+                  $ref: "#/components/schemas/marketOffer"
+
+  /leagues/{league_id}/market/players/{player_id}/user:
+    get:
+      tags:
+        - Market
+      summary: Get user who added the player to the market
+      parameters:
+        - $ref: "#/components/parameters/leagueId"
+        - $ref: "#/components/parameters/playerId"
+      responses:
+        "200":
+          description: The user who added the player to the market
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/marketUser"
 
   /leagues/{league_id}/market/offers:
     post:
       tags:
         - Market
       summary: Place offer
+      operationId: placeOffer
       parameters:
-        - in: path
-          name: league_id
-          required: true
-          schema:
-            type: integer
-            format: int64
-          description: The ID of the league
+        - $ref: "#/components/parameters/leagueId"
       requestBody:
         description: The details of the offer
         required: true
@@ -163,7 +146,7 @@ paths:
             schema:
               type: object
               properties:
-                player_id:
+                playerId:
                   type: integer
                   format: int64
                   description: The ID of the player
@@ -171,47 +154,40 @@ paths:
                   type: number
                   format: float
                   description: The price of the offer
+      responses:
+        "201":
+          description: The offer was placed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    format: int64
+                    description: The ID of the offer
 
   /leagues/{league_id}/market/offers/{offer_id}:
     post:
       tags:
         - Market
       summary: Accept offer
+      operationId: acceptOffer
       parameters:
-        - in: path
-          name: league_id
-          required: true
-          schema:
-            type: integer
-            format: int64
-          description: The ID of the league
-        - in: path
-          name: offer_id
-          required: true
-          schema:
-            type: integer
-            format: int64
-          description: The ID of the offer
+        - $ref: "#/components/parameters/leagueId"
+        - $ref: "#/components/parameters/offerId"
+      responses:
+        "204":
+          description: The offer was accepted successfully
 
-    put:
+    patch:
       tags:
         - Market
-      summary: Update offer price
+      summary: Update offer
+      operationId: updateOffer
       parameters:
-        - in: path
-          name: league_id
-          required: true
-          schema:
-            type: integer
-            format: int64
-          description: The ID of the league
-        - in: path
-          name: offer_id
-          required: true
-          schema:
-            type: integer
-            format: int64
-          description: The ID of the offer
+        - $ref: "#/components/parameters/leagueId"
+        - $ref: "#/components/parameters/offerId"
       requestBody:
         description: The new price for the offer
         required: true
@@ -224,24 +200,139 @@ paths:
                   type: number
                   format: float
                   description: The new price for the offer
+      responses:
+        "204":
+          description: The price was updated successfully
 
     # TODO: Do we need to differentiate between declining and removing an offer?
     delete:
       tags:
         - Market
       summary: Decline offer
+      operationId: declineOffer
       parameters:
-        - in: path
-          name: league_id
-          required: true
-          schema:
-            type: integer
-            format: int64
-          description: The ID of the league
-        - in: path
-          name: offer_id
-          required: true
-          schema:
-            type: integer
-            format: int64
+        - $ref: "#/components/parameters/leagueId"
+        - $ref: "#/components/parameters/offerId"
+      responses:
+        "204":
+          description: The offer was declined successfully
+
+components:
+  parameters:
+    leagueId:
+      in: path
+      name: league_id
+      required: true
+      schema:
+        type: integer
+        format: int64
+        description: The ID of the league
+    playerId:
+      in: path
+      name: player_id
+      required: true
+      schema:
+        type: integer
+        format: int64
+        description: The ID of the player
+    offerId:
+      in: path
+      name: offer_id
+      required: true
+      schema:
+        type: integer
+        format: int64
+        description: The ID of the offer
+  schemas:
+    marketPlayer:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: The ID of the player
+        firstName:
+          type: string
+          description: The first name of the player
+        lastName:
+          type: string
+          description: The last name of the player
+        profileUrl:
+          type: string
+          format: uri
+          description: The URL of the player's portrait
+        status:
+          type: integer
+          format: int64
+          description: The status of the player (0 - fit, 1 - injured, 2 - stricken)
+        position:
+          type: integer
+          format: int64
+          description: The position of the player (0 - goalkeeper - gk, 1 - defense - def, 2 - midfield - mf, 3 - forward - fwd)
+        number:
+          type: integer
+          format: int64
+          description: The number of the player
+        totalPoints:
+          type: integer
+          format: int64
+          description: The total points of the player
+        averagePoints:
+          type: number
+          format: float
+          description: The average points of the player
+        marketValue:
+          type: number
+          format: float
+          description: The market value of the player
+        marketValueTrend:
+          type: integer
+          format: int64
+          description: The market value trend of the player (0 - stable, 1 - up, 2 - down)
+        price:
+          type: number
+          format: float
+          description: The price of the player
+        addedDateTime:
+          type: string
+          format: date-time
+          description: The date the player was added to the market
+        expirationDateTime:
+          type: string
+          format: date-time
+          description: The date the player will expire from the market
+        user:
+          $ref: "#/components/schemas/marketUser"
+        offers:
+          type: array
+          items:
+            $ref: "#/components/schemas/marketOffer"
+    marketOffer:
+      properties:
+        id:
+          type: integer
+          format: int64
           description: The ID of the offer
+        price:
+          type: number
+          format: float
+          description: The price of the offer
+        addedDateTime:
+          type: string
+          format: date-time
+          description: The date the offer was placed
+        user:
+          $ref: "#/components/schemas/marketUser"
+    marketUser:
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: The ID of the user who placed the offer
+        name:
+          type: string
+          description: The name of the user who placed the offer
+        profileUrl:
+          type: string
+          format: uri
+          description: The URL of the user's portrait
