@@ -4,9 +4,244 @@ info:
   version: "0.0.1"
 servers:
   - url: https:/api.dreamscore.com/v1
+tags:
+  - name: Market
+    description: Operations related to the market
 paths:
-  /test:
+  /leagues/{league_id}/market/players:
     get:
+      tags:
+        - Market
+      summary: Get all players in the market
+      parameters:
+        - in: path
+          name: league_id
+          required: true
+          schema:
+            type: integer
+            format: int64
+          description: The ID of the league
+
+  /leagues/{league_id}/market/players/{player_id}:
+    post:
+      tags:
+        - Market
+      summary: Add player to market
+      parameters:
+        - in: path
+          name: league_id
+          required: true
+          schema:
+            type: integer
+            format: int64
+          description: The ID of the league
+        - in: path
+          name: player_id
+          required: true
+          schema:
+            type: integer
+            format: int64
+          description: The ID of the player
+      requestBody:
+        description: The details of the player and the price
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                price:
+                  type: number
+                  format: float
+                  description: The price of the player
+
+    put:
+      tags:
+        - Market
+      summary: Update player price
+      parameters:
+        - in: path
+          name: league_id
+          required: true
+          schema:
+            type: integer
+            format: int64
+          description: The ID of the league
+        - in: path
+          name: player_id
+          required: true
+          schema:
+            type: integer
+            format: int64
+          description: The ID of the player
+      requestBody:
+        description: The new price for the player
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                price:
+                  type: number
+                  format: float
+                  description: The new price for the player
+
+    delete:
+      tags:
+        - Market
+      summary: Remove player from market
+      parameters:
+        - in: path
+          name: league_id
+          required: true
+          schema:
+            type: integer
+            format: int64
+          description: The ID of the league
+        - in: path
+          name: player_id
+          required: true
+          schema:
+            type: integer
+            format: int64
+          description: The ID of the player
+
+  /leagues/{league_id}/market/players/{player_id}/offers:
+    get:
+      tags:
+        - Market
+      summary: Get all offers for a player
+      parameters:
+        - in: path
+          name: league_id
+          required: true
+          schema:
+            type: integer
+            format: int64
+          description: The ID of the league
+        - in: path
+          name: player_id
+          required: true
+          schema:
+            type: integer
+            format: int64
+          description: The ID of the player
       responses:
         "200":
-          description: OK
+          description: A list of offers for the player
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    offer_id:
+                      type: integer
+                      format: int64
+                      description: The ID of the offer
+
+  /leagues/{league_id}/market/offers:
+    post:
+      tags:
+        - Market
+      summary: Place offer
+      parameters:
+        - in: path
+          name: league_id
+          required: true
+          schema:
+            type: integer
+            format: int64
+          description: The ID of the league
+      requestBody:
+        description: The details of the offer
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                player_id:
+                  type: integer
+                  format: int64
+                  description: The ID of the player
+                price:
+                  type: number
+                  format: float
+                  description: The price of the offer
+
+  /leagues/{league_id}/market/offers/{offer_id}:
+    post:
+      tags:
+        - Market
+      summary: Accept offer
+      parameters:
+        - in: path
+          name: league_id
+          required: true
+          schema:
+            type: integer
+            format: int64
+          description: The ID of the league
+        - in: path
+          name: offer_id
+          required: true
+          schema:
+            type: integer
+            format: int64
+          description: The ID of the offer
+
+    put:
+      tags:
+        - Market
+      summary: Update offer price
+      parameters:
+        - in: path
+          name: league_id
+          required: true
+          schema:
+            type: integer
+            format: int64
+          description: The ID of the league
+        - in: path
+          name: offer_id
+          required: true
+          schema:
+            type: integer
+            format: int64
+          description: The ID of the offer
+      requestBody:
+        description: The new price for the offer
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                price:
+                  type: number
+                  format: float
+                  description: The new price for the offer
+
+    # TODO: Do we need to differentiate between declining and removing an offer?
+    delete:
+      tags:
+        - Market
+      summary: Decline offer
+      parameters:
+        - in: path
+          name: league_id
+          required: true
+          schema:
+            type: integer
+            format: int64
+          description: The ID of the league
+        - in: path
+          name: offer_id
+          required: true
+          schema:
+            type: integer
+            format: int64
+          description: The ID of the offer
