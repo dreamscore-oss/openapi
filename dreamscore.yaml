@@ -3,39 +3,68 @@ info:
   title: DreamScore API
   version: "0.0.1"
 servers:
-  - url: https:/api.dreamscore.com/v1
+  - url: https://api.dreamscore.com/v1
+
 tags:
   - name: Players
     description: Operations related to the players
+  - name: Leagues
+    description: Operations related to the leagues
   - name: Transfers
     description: Operations related to the transfers
+
 paths:
-  /players/{player_id}:
+  /players/{playerId}:
     get:
       tags:
         - Players
 
-  /players/{player_id}/profile:
+  /players/{playerId}/profile:
     get:
       tags:
         - Players
 
-  /players/{player_id}/statistic:
+  /players/{playerId}/statistic:
+    get:
+      tags:
+        - Players
+      summary: Get player statistic
+      parameters:
+        - $ref: "#/components/parameters/playerId"
+      responses:
+        "200":
+          description: The statistic of the player
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/playerStatistic"
+
+  /players/{playerId}/market:
+    get:
+      tags:
+        - Players
+      summary: Get player market details
+      parameters:
+        - $ref: "#/components/parameters/playerId"
+      responses:
+        "200":
+          description: The market details of the player
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/playerMarket"
+
+  /players/{playerId}/transfer:
     get:
       tags:
         - Players
 
-  /players/{player_id}/market:
+  /leagues:
     get:
       tags:
-        - Players
+        - Leagues
 
-  /players/{player_id}/transfer:
-    get:
-      tags:
-        - Players
-
-  /leagues/{league_id}/transfers:
+  /leagues/{leagueId}/transfers:
     get:
       tags:
         - Transfers
@@ -87,7 +116,7 @@ paths:
                     format: int64
                     description: The ID of the transfer
 
-  /leagues/{league_id}/transfers/{transfer_id}:
+  /leagues/{leagueId}/transfers/{transferId}:
     get:
       tags:
         - Transfers
@@ -137,7 +166,7 @@ paths:
         "204":
           description: The transfer was removed successfully
 
-  /leagues/{league_id}/transfers/{transfer_id}/user:
+  /leagues/{leagueId}/transfers/{transferId}/user:
     get:
       tags:
         - Transfers
@@ -153,7 +182,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/transferUser"
 
-  /leagues/{league_id}/transfers/{transfer_id}/offers:
+  /leagues/{leagueId}/transfers/{transferId}/offers:
     get:
       tags:
         - Transfers
@@ -204,7 +233,7 @@ paths:
                     format: int64
                     description: The ID of the offer
 
-  /leagues/{league_id}/transfers/{transfer_id}/offers/{offer_id}:
+  /leagues/{leagueId}/transfers/{transferId}/offers/{offerId}:
     post:
       tags:
         - Transfers
@@ -260,37 +289,158 @@ components:
   parameters:
     leagueId:
       in: path
-      name: league_id
+      name: leagueId
       required: true
       schema:
         type: integer
         format: int64
         description: The ID of the league
+
     transferId:
       in: path
-      name: transfer_id
+      name: transferId
       required: true
       schema:
         type: integer
         format: int64
         description: The ID of the transfer
+
     playerId:
       in: path
-      name: player_id
+      name: playerId
       required: true
       schema:
         type: integer
         format: int64
         description: The ID of the player
+
     offerId:
       in: path
-      name: offer_id
+      name: offerId
       required: true
       schema:
         type: integer
         format: int64
         description: The ID of the offer
   schemas:
+    playerStatistic:
+      type: array
+      items:
+        type: object
+        properties:
+          season:
+            type: string
+            description: The season of the statistic
+          pointsTotal:
+            type: integer
+            format: int64
+            description: The total points of the player
+          pointsAverage:
+            type: number
+            format: float
+            description: The average points of the player
+          minutesPlayedAverage:
+            type: integer
+            format: int64
+            description: The average minutes played by the player
+          matchDays:
+            type: array
+            items:
+              type: object
+              properties:
+                day:
+                  type: integer
+                  format: int64
+                  description: The match day of the points
+                dateTime:
+                  type: string
+                  format: date-time
+                  description: The date and time of the match
+                points:
+                  type: integer
+                  format: int64
+                  description: The points of the player
+                minutesPlayed:
+                  type: integer
+                  format: int64
+                  description: The minutes played by the player
+                goals:
+                  type: integer
+                  format: int64
+                  description: The goals of the player
+                assists:
+                  type: integer
+                  format: int64
+                  description: The assists of the player
+                redCards:
+                  type: integer
+                  format: int64
+                  description: The red cards of the player
+                yellowCards:
+                  type: integer
+                  format: int64
+                  description: The yellow cards of the player
+                startingLineUp:
+                  type: boolean
+                  description: If the player was in the starting line-up
+                firstTeamId:
+                  type: integer
+                  format: int64
+                  description: The ID of the first team
+                firstTeamScore:
+                  type: integer
+                  format: int64
+                  description: The score of the first team
+                secondTeamId:
+                  type: integer
+                  format: int64
+                  description: The ID of the second team
+                secondTeamScore:
+                  type: integer
+                  format: int64
+                  description: The score of the second team
+
+    playerMarket:
+      type: object
+      properties:
+        value:
+          type: number
+          format: float
+          description: The market value of the player
+        valueTrend:
+          type: integer
+          format: int64
+          description: The market value trend of the player (0 - stable, 1 - up, 2 - down)
+        valueHighest:
+          type: number
+          format: float
+          description: The highest market value of the player
+        valueHighestDate:
+          type: string
+          format: date
+          description: The date the market value was the highest
+        valueLowest:
+          type: number
+          format: float
+          description: The lowest market value of the player
+        valueLowestDate:
+          type: string
+          format: date
+          description: The date the market value was the lowest
+        history:
+          type: array
+          items:
+            type: object
+            properties:
+              date:
+                type: string
+                format: date
+                description: The date of the market value
+              value:
+                type: number
+                format: float
+                description: The market value of the player
+
     transfer:
       type: object
       properties:
@@ -318,6 +468,7 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/transferOffer"
+
     transferPlayer:
       properties:
         id:
@@ -362,6 +513,7 @@ components:
           type: integer
           format: int64
           description: The market value trend of the player (0 - stable, 1 - up, 2 - down)
+
     transferOffer:
       properties:
         id:
@@ -378,6 +530,7 @@ components:
           description: The date the offer was placed
         user:
           $ref: "#/components/schemas/transferUser"
+
     transferUser:
       properties:
         id:
