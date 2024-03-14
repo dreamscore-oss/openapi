@@ -5,6 +5,8 @@ info:
 servers:
   - url: https:/api.dreamscore.com/v1
 tags:
+  - name: Players
+    description: Operations related to the players
   - name: Market
     description: Operations related to the market
 paths:
@@ -293,14 +295,14 @@ components:
           type: number
           format: float
           description: The price of the player
-        addedDateTime:
+        entryDateTime:
           type: string
           format: date-time
           description: The date the player was added to the market
-        expirationDateTime:
+        exitDateTime:
           type: string
           format: date-time
-          description: The date the player will expire from the market
+          description: The date the player will be removed from the market
         user:
           $ref: "#/components/schemas/marketUser"
         offers:
