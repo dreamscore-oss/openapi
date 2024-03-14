@@ -7,47 +7,57 @@ servers:
 tags:
   - name: Players
     description: Operations related to the players
-  - name: Market
-    description: Operations related to the market
+  - name: Transfers
+    description: Operations related to the transfers
 paths:
-  /leagues/{league_id}/market/players:
+  /players/{player_id}:
     get:
       tags:
-        - Market
-      summary: Get all players in the market
-      parameters:
-        - $ref: "#/components/parameters/leagueId"
-      responses:
-        "200":
-          description: A list of players in the market
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/marketPlayer"
+        - Players
 
-  /leagues/{league_id}/market/players/{player_id}:
+  /players/{player_id}/profile:
     get:
       tags:
-        - Market
-      summary: Get player details
+        - Players
+
+  /players/{player_id}/statistic:
+    get:
+      tags:
+        - Players
+
+  /players/{player_id}/market:
+    get:
+      tags:
+        - Players
+
+  /players/{player_id}/transfer:
+    get:
+      tags:
+        - Players
+
+  /leagues/{league_id}/transfers:
+    get:
+      tags:
+        - Transfers
+      summary: Get all transfers
       parameters:
         - $ref: "#/components/parameters/leagueId"
-        - $ref: "#/components/parameters/playerId"
       responses:
         "200":
-          description: The details of the player
+          description: A list of transfers
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/marketPlayer"
+                type: array
+                items:
+                  $ref: "#/components/schemas/transfer"
 
     post:
       tags:
-        - Market
-      summary: Add player to market
+        - Transfers
+      summary: Add transfer
       parameters:
         - $ref: "#/components/parameters/leagueId"
-        - $ref: "#/components/parameters/playerId"
       requestBody:
         description: The details of the player and the price
         required: true
@@ -56,23 +66,52 @@ paths:
             schema:
               type: object
               properties:
+                playerId:
+                  type: integer
+                  format: int64
+                  description: The ID of the player
                 price:
                   type: number
                   format: float
                   description: The price of the player
       responses:
         "201":
-          description: The player was added to the market successfully
+          description: The transfer was added successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    format: int64
+                    description: The ID of the transfer
+
+  /leagues/{league_id}/transfers/{transfer_id}:
+    get:
+      tags:
+        - Transfers
+      summary: Get transfer details
+      parameters:
+        - $ref: "#/components/parameters/leagueId"
+        - $ref: "#/components/parameters/transferId"
+      responses:
+        "200":
+          description: The details of the transfer
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/transfer"
 
     patch:
       tags:
-        - Market
-      summary: Update player price
+        - Transfers
+      summary: Update transfer price
       parameters:
         - $ref: "#/components/parameters/leagueId"
-        - $ref: "#/components/parameters/playerId"
+        - $ref: "#/components/parameters/transferId"
       requestBody:
-        description: The new price for the player
+        description: The new price for the transfer
         required: true
         content:
           application/json:
@@ -89,57 +128,57 @@ paths:
 
     delete:
       tags:
-        - Market
-      summary: Remove player from market
+        - Transfers
+      summary: Remove transfer
       parameters:
         - $ref: "#/components/parameters/leagueId"
-        - $ref: "#/components/parameters/playerId"
+        - $ref: "#/components/parameters/transferId"
       responses:
         "204":
-          description: The player was removed from the market successfully
+          description: The transfer was removed successfully
 
-  /leagues/{league_id}/market/players/{player_id}/offers:
+  /leagues/{league_id}/transfers/{transfer_id}/user:
     get:
       tags:
-        - Market
-      summary: Get all offers for a player
+        - Transfers
+      summary: Get user who added the transfer
       parameters:
         - $ref: "#/components/parameters/leagueId"
-        - $ref: "#/components/parameters/playerId"
+        - $ref: "#/components/parameters/transferId"
       responses:
         "200":
-          description: A list of offers for the player
+          description: The user who added the transfer
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/transferUser"
+
+  /leagues/{league_id}/transfers/{transfer_id}/offers:
+    get:
+      tags:
+        - Transfers
+      summary: Get all offers for a transfer
+      parameters:
+        - $ref: "#/components/parameters/leagueId"
+        - $ref: "#/components/parameters/transferId"
+      responses:
+        "200":
+          description: A list of offers for the transfer
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/marketOffer"
+                  $ref: "#/components/schemas/transferOffer"
 
-  /leagues/{league_id}/market/players/{player_id}/user:
-    get:
-      tags:
-        - Market
-      summary: Get user who added the player to the market
-      parameters:
-        - $ref: "#/components/parameters/leagueId"
-        - $ref: "#/components/parameters/playerId"
-      responses:
-        "200":
-          description: The user who added the player to the market
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/marketUser"
-
-  /leagues/{league_id}/market/offers:
     post:
       tags:
-        - Market
+        - Transfers
       summary: Place offer
       operationId: placeOffer
       parameters:
         - $ref: "#/components/parameters/leagueId"
+        - $ref: "#/components/parameters/transferId"
       requestBody:
         description: The details of the offer
         required: true
@@ -148,10 +187,6 @@ paths:
             schema:
               type: object
               properties:
-                playerId:
-                  type: integer
-                  format: int64
-                  description: The ID of the player
                 price:
                   type: number
                   format: float
@@ -169,14 +204,15 @@ paths:
                     format: int64
                     description: The ID of the offer
 
-  /leagues/{league_id}/market/offers/{offer_id}:
+  /leagues/{league_id}/transfers/{transfer_id}/offers/{offer_id}:
     post:
       tags:
-        - Market
+        - Transfers
       summary: Accept offer
       operationId: acceptOffer
       parameters:
         - $ref: "#/components/parameters/leagueId"
+        - $ref: "#/components/parameters/transferId"
         - $ref: "#/components/parameters/offerId"
       responses:
         "204":
@@ -184,11 +220,12 @@ paths:
 
     patch:
       tags:
-        - Market
+        - Transfers
       summary: Update offer
       operationId: updateOffer
       parameters:
         - $ref: "#/components/parameters/leagueId"
+        - $ref: "#/components/parameters/transferId"
         - $ref: "#/components/parameters/offerId"
       requestBody:
         description: The new price for the offer
@@ -206,14 +243,14 @@ paths:
         "204":
           description: The price was updated successfully
 
-    # TODO: Do we need to differentiate between declining and removing an offer?
     delete:
       tags:
-        - Market
+        - Transfers
       summary: Decline offer
       operationId: declineOffer
       parameters:
         - $ref: "#/components/parameters/leagueId"
+        - $ref: "#/components/parameters/transferId"
         - $ref: "#/components/parameters/offerId"
       responses:
         "204":
@@ -229,6 +266,14 @@ components:
         type: integer
         format: int64
         description: The ID of the league
+    transferId:
+      in: path
+      name: transfer_id
+      required: true
+      schema:
+        type: integer
+        format: int64
+        description: The ID of the transfer
     playerId:
       in: path
       name: player_id
@@ -246,8 +291,34 @@ components:
         format: int64
         description: The ID of the offer
   schemas:
-    marketPlayer:
+    transfer:
       type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: The ID of the transfer
+        price:
+          type: number
+          format: float
+          description: The price of the transfer
+        entryDateTime:
+          type: string
+          format: date-time
+          description: The date the transfer was added
+        exitDateTime:
+          type: string
+          format: date-time
+          description: The date the transfer will be removed
+        player:
+          $ref: "#/components/schemas/transferPlayer"
+        user:
+          $ref: "#/components/schemas/transferUser"
+        offers:
+          type: array
+          items:
+            $ref: "#/components/schemas/transferOffer"
+    transferPlayer:
       properties:
         id:
           type: integer
@@ -259,7 +330,7 @@ components:
         lastName:
           type: string
           description: The last name of the player
-        profileUrl:
+        portraitUrl:
           type: string
           format: uri
           description: The URL of the player's portrait
@@ -291,25 +362,7 @@ components:
           type: integer
           format: int64
           description: The market value trend of the player (0 - stable, 1 - up, 2 - down)
-        price:
-          type: number
-          format: float
-          description: The price of the player
-        entryDateTime:
-          type: string
-          format: date-time
-          description: The date the player was added to the market
-        exitDateTime:
-          type: string
-          format: date-time
-          description: The date the player will be removed from the market
-        user:
-          $ref: "#/components/schemas/marketUser"
-        offers:
-          type: array
-          items:
-            $ref: "#/components/schemas/marketOffer"
-    marketOffer:
+    transferOffer:
       properties:
         id:
           type: integer
@@ -319,13 +372,13 @@ components:
           type: number
           format: float
           description: The price of the offer
-        addedDateTime:
+        placedDateTime:
           type: string
           format: date-time
           description: The date the offer was placed
         user:
-          $ref: "#/components/schemas/marketUser"
-    marketUser:
+          $ref: "#/components/schemas/transferUser"
+    transferUser:
       properties:
         id:
           type: integer
@@ -334,7 +387,7 @@ components:
         name:
           type: string
           description: The name of the user who placed the offer
-        profileUrl:
+        portraitUrl:
           type: string
           format: uri
           description: The URL of the user's portrait
