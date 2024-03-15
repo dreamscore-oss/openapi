@@ -6,43 +6,141 @@ servers:
   - url: https://api.dreamscore.com/v1
 
 tags:
-  - name: Players
-    description: Operations related to the players
-  - name: Leagues
+  - name: /users
+    description: Operations related to the users
+  - name: /competitions
+    description: Operations related to the competitions
+  - name: /leagues
     description: Operations related to the leagues
-  - name: Transfers
+  - name: /leagues/users
+    description: Operations related to the users in the leagues
+  - name: /leagues/players
+    description: Operations related to the players
+  - name: /leagues/transfers
     description: Operations related to the transfers
+  - name: /leagues/transfers/offers
+    description: Operations related to the offers for the transfers
 
 paths:
-  /players/{playerId}:
-    get:
+  /users:
+    post:
       tags:
-        - Players
+        - /users
 
-  /players/{playerId}/profile:
+  /users/{userId}:
     get:
       tags:
-        - Players
+        - /users
 
-  /players/{playerId}/statistic:
+    patch:
+      tags:
+        - /users
+
+  /leagues:
     get:
       tags:
-        - Players
-      summary: Get player statistic
+        - /leagues
+
+    post:
+      tags:
+        - /leagues
+
+  /leagues/{leagueId}:
+    get:
+      tags:
+        - /leagues
+      parameters:
+        - $ref: "#/components/parameters/leagueId"
+
+    patch:
+      tags:
+        - /leagues
+      parameters:
+        - $ref: "#/components/parameters/leagueId"
+
+  /leagues/{leagueId}/ranking:
+    get:
+      tags:
+        - /leagues
+      parameters:
+        - $ref: "#/components/parameters/leagueId"
+
+  /leagues/{leagueId}/users/{userId}:
+    get:
+      tags:
+        - /leagues/users
+
+    post:
+      tags:
+        - /leagues/users
+
+    delete:
+      tags:
+        - /leagues/users
+
+  /leagues/{leagueId}/users/{userId}/information:
+    get:
+      tags:
+        - /leagues/users
+
+  /leagues/{leagueId}/users/{userId}/points:
+    get:
+      tags:
+        - /leagues/users
+
+  /leagues/{leagueId}/users/{userId}/market:
+    get:
+      tags:
+        - /leagues/users
+
+  /leagues/{leagueId}/users/{userId}/lineup:
+    get:
+      tags:
+        - /leagues/users
+
+    patch:
+      tags:
+        - /leagues/users
+
+  /leagues/{leagueId}/users/{userId}/players:
+    get:
+      tags:
+        - /leagues/users
+
+  /leagues/{leagueId}/users/{userId}/transfers:
+    get:
+      tags:
+        - /leagues/users
+
+  /leagues/{leagueId}/players/{playerId}:
+    get:
+      tags:
+        - /leagues/players
+
+  /leagues/{leagueId}/players/{playerId}/information:
+    get:
+      tags:
+        - /leagues/players
+
+  /leagues/{leagueId}/players/{playerId}/points:
+    get:
+      tags:
+        - /leagues/players
+      summary: Get player points
       parameters:
         - $ref: "#/components/parameters/playerId"
       responses:
         "200":
-          description: The statistic of the player
+          description: The points of the player
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/playerStatistic"
+                $ref: "#/components/schemas/playerPoints"
 
-  /players/{playerId}/market:
+  /leagues/{leagueId}/players/{playerId}/market:
     get:
       tags:
-        - Players
+        - /leagues/players
       summary: Get player market details
       parameters:
         - $ref: "#/components/parameters/playerId"
@@ -54,20 +152,15 @@ paths:
               schema:
                 $ref: "#/components/schemas/playerMarket"
 
-  /players/{playerId}/transfer:
+  /leagues/{leagueId}/players/{playerId}/transfers:
     get:
       tags:
-        - Players
-
-  /leagues:
-    get:
-      tags:
-        - Leagues
+        - /leagues/players
 
   /leagues/{leagueId}/transfers:
     get:
       tags:
-        - Transfers
+        - /leagues/transfers
       summary: Get all transfers
       parameters:
         - $ref: "#/components/parameters/leagueId"
@@ -83,7 +176,7 @@ paths:
 
     post:
       tags:
-        - Transfers
+        - /leagues/transfers
       summary: Add transfer
       parameters:
         - $ref: "#/components/parameters/leagueId"
@@ -119,7 +212,7 @@ paths:
   /leagues/{leagueId}/transfers/{transferId}:
     get:
       tags:
-        - Transfers
+        - /leagues/transfers
       summary: Get transfer details
       parameters:
         - $ref: "#/components/parameters/leagueId"
@@ -134,7 +227,7 @@ paths:
 
     patch:
       tags:
-        - Transfers
+        - /leagues/transfers
       summary: Update transfer price
       parameters:
         - $ref: "#/components/parameters/leagueId"
@@ -157,7 +250,7 @@ paths:
 
     delete:
       tags:
-        - Transfers
+        - /leagues/transfers
       summary: Remove transfer
       parameters:
         - $ref: "#/components/parameters/leagueId"
@@ -166,43 +259,9 @@ paths:
         "204":
           description: The transfer was removed successfully
 
-  /leagues/{leagueId}/transfers/{transferId}/user:
-    get:
-      tags:
-        - Transfers
-      summary: Get user who added the transfer
-      parameters:
-        - $ref: "#/components/parameters/leagueId"
-        - $ref: "#/components/parameters/transferId"
-      responses:
-        "200":
-          description: The user who added the transfer
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/transferUser"
-
-  /leagues/{leagueId}/transfers/{transferId}/offers:
-    get:
-      tags:
-        - Transfers
-      summary: Get all offers for a transfer
-      parameters:
-        - $ref: "#/components/parameters/leagueId"
-        - $ref: "#/components/parameters/transferId"
-      responses:
-        "200":
-          description: A list of offers for the transfer
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/transferOffer"
-
     post:
       tags:
-        - Transfers
+        - /leagues/transfers/offers
       summary: Place offer
       operationId: placeOffer
       parameters:
@@ -234,22 +293,9 @@ paths:
                     description: The ID of the offer
 
   /leagues/{leagueId}/transfers/{transferId}/offers/{offerId}:
-    post:
-      tags:
-        - Transfers
-      summary: Accept offer
-      operationId: acceptOffer
-      parameters:
-        - $ref: "#/components/parameters/leagueId"
-        - $ref: "#/components/parameters/transferId"
-        - $ref: "#/components/parameters/offerId"
-      responses:
-        "204":
-          description: The offer was accepted successfully
-
     patch:
       tags:
-        - Transfers
+        - /leagues/transfers/offers
       summary: Update offer
       operationId: updateOffer
       parameters:
@@ -274,7 +320,7 @@ paths:
 
     delete:
       tags:
-        - Transfers
+        - /leagues/transfers/offers
       summary: Decline offer
       operationId: declineOffer
       parameters:
@@ -322,15 +368,25 @@ components:
         type: integer
         format: int64
         description: The ID of the offer
+
+    userId:
+      in: path
+      name: userId
+      required: true
+      schema:
+        type: integer
+        format: int64
+        description: The ID of the user
+
   schemas:
-    playerStatistic:
+    playerPoints:
       type: array
       items:
         type: object
         properties:
           season:
             type: string
-            description: The season of the statistic
+            description: The season of the points
           pointsTotal:
             type: integer
             format: int64
