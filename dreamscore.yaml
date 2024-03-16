@@ -1,15 +1,23 @@
 openapi: "3.0.2"
 info:
   title: DreamScore API
-  version: "0.0.1"
+  description: The DreamScore API is an OpenAPI specification that provides a detailed description of a soccer league management system. It includes endpoints for managing users, seasons, leagues, players, and transfers.
+  license:
+    name: All rights reserved
+    url: https://github.com/dreamscore-oss/openapi/blob/main/LICENSE.md
+  version: "1.0.0"
 servers:
-  - url: https://api.dreamscore.com/v1
+  - url: https://api.dreamscore.com/{basePath}
+    description: DreamScore API
+    variables:
+      basePath:
+        default: v1
 
 tags:
   - name: /users
     description: Operations related to the users
-  - name: /competitions
-    description: Operations related to the competitions
+  - name: /seasons
+    description: Operations related to the seasons
   - name: /leagues
     description: Operations related to the leagues
   - name: /leagues/users
@@ -26,83 +34,60 @@ paths:
     post:
       tags:
         - /users
-      summary: Create a new userprofile
-      parameters:
-        - name: username
-          in: query
-          required: true
-          schema:
-            type: string
-            description: The name of the user
-        - name: email
-          in: query
-          required: true
-          schema:
-            type: string
-            format: email
-            description: The email of the user
-        - name: password
-          in: query
-          required: true
-          schema:
-            type: string
-            format: password
-            description: The password of the user
-        - name: confirmPassword
-          in: query
-          required: true
-          schema:
-            type: string
-            format: password
-            description: The password confirmation of the user
-        - name: portraitUrl
-          in: query
-          required: false
-          schema:
-            type: string
-            format: uri
-            description: The URL of the user's portrait
-      responses:
-        "200":
-          description: Userprofile created successfully
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/userProfile"
-
-
-
 
   /users/{userId}:
     get:
       tags:
         - /users
-      summary: Get user Profile
-      parameters:
-        - $ref: "#/components/parameters/userId"
-      responses:
-        "200":
-          description: Userprofile fetched successfully
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/userProfile"
 
-  /users/update/{userId}:
     patch:
       tags:
-        - /usersG
-      summary: Update user Profile
-      parameters:
-        - $ref: "#/components/parameters/userId"
-      responses:
-        "200":
-          description: Userprofile successfully updated
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/userProfile"
+        - /users
 
+  /seasons/{seasonId}/matchdays:
+    get:
+      tags:
+        - /seasons
+
+  /seasons/{seasonId}/matchdays/{matchdayId}/table: # point calculation based first season matchday until path matchdayId
+    get: # TODO: Query param? bundesliga, matchday points, season points
+      tags:
+        - /seasons
+
+  /seasons/{seasonId}/matchdays/{matchdayId}/top-players:
+    get: # TODO: Query param? total points, average points, points per minute, client filter: gk, fwd, md, df
+      tags:
+        - /seasons
+
+  /seasons/{seasonId}/matchdays/{matchdayId}/point-feed:
+    get:
+      tags:
+        - /seasons
+      parameters:
+        - name: matchdayId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+            description: The ID of the matchday
+        - in: query
+          name: playerId
+          required: false
+          schema:
+            type: integer
+            format: int64
+            description: The ID of the player
+
+  /seasons/{seasonId}/matchdays/{matchdayId}/fixtures:
+    get:
+      tags:
+        - /seasons
+
+  /seasons/{seasonId}/matchdays/{matchdayId}/fixtures/{fixtureId}:
+    get:
+      tags:
+        - /seasons
 
   /leagues:
     get:
@@ -232,6 +217,12 @@ paths:
       summary: Get all transfers
       parameters:
         - $ref: "#/components/parameters/leagueId"
+        - name: status
+          in: query
+          schema:
+            type: integer # TODO: clarify int or string
+            format: int64
+            description: The status of the transfer (0 - active, 1 - completed)
       responses:
         "200":
           description: A list of transfers
@@ -447,25 +438,6 @@ components:
         description: The ID of the user
 
   schemas:
-    userProfile:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int64
-          description: The ID of the user
-        username:
-          type: string
-          description: The name of the user
-        email:
-          type: string
-          format: email
-          description: The email of the user
-        portraitUrl:
-          type: string
-          format: uri
-          description: The URL of the user's portrait
-
     playerPoints:
       type: array
       items:
@@ -687,3 +659,12 @@ components:
           type: string
           format: uri
           description: The URL of the user's portrait
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+security:
+  - bearerAuth: []
