@@ -34,15 +34,80 @@ paths:
     post:
       tags:
         - /users
+      summary: Create a new userprofile
+      parameters:
+        - name: username
+          in: query
+          required: true
+          schema:
+            type: string
+            description: The name of the user
+        - name: email
+          in: query
+          required: true
+          schema:
+            type: string
+            format: email
+            description: The email of the user
+        - name: password
+          in: query
+          required: true
+          schema:
+            type: string
+            format: password
+            description: The password of the user
+        - name: confirmPassword
+          in: query
+          required: true
+          schema:
+            type: string
+            format: password
+            description: The password confirmation of the user
+        - name: portraitUrl
+          in: query
+          required: false
+          schema:
+            type: string
+            format: uri
+            description: The URL of the user's portrait
+      responses:
+        "200":
+          description: Userprofile created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/userProfile"
 
-  /users/{userId}:
-    get:
-      tags:
-        - /users
+    /users/{userId}:
+      get:
+        tags:
+          - /users
+        summary: Get user Profile
+        parameters:
+          - $ref: "#/components/parameters/userId"
+        responses:
+          "200":
+            description: Userprofile fetched successfully
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/userProfile"
 
-    patch:
-      tags:
-        - /users
+    /users/update/{userId}:
+      patch:
+        tags:
+          - /users
+        summary: Update user Profile
+        parameters:
+          - $ref: "#/components/parameters/userId"
+        responses:
+          "200":
+            description: Userprofile successfully updated
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/userProfile"
+
 
   /seasons/{seasonId}/matchdays:
     get:
@@ -438,6 +503,26 @@ components:
         description: The ID of the user
 
   schemas:
+    userProfile:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: The ID of the user
+        username:
+          type: string
+          description: The name of the user
+        email:
+          type: string
+          format: email
+          description: The email of the user
+        portraitUrl:
+          type: string
+          format: uri
+          description: The URL of the user's portrait
+
+
     playerPoints:
       type: array
       items:
@@ -667,4 +752,4 @@ components:
       bearerFormat: JWT
 
 security:
-  - bearerAuth: []
+  - bearerAuth: [ ]
