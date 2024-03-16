@@ -88,9 +88,10 @@ paths:
               schema:
                 $ref: "#/components/schemas/userProfile"
 
+  /users/update/{userId}:
     patch:
       tags:
-        - /users/update
+        - /usersG
       summary: Update user Profile
       parameters:
         - $ref: "#/components/parameters/userId"
