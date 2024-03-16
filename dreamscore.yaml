@@ -78,35 +78,35 @@ paths:
               schema:
                 $ref: "#/components/schemas/userProfile"
 
-    /users/{userId}:
-      get:
-        tags:
-          - /users
-        summary: Get user Profile
-        parameters:
-          - $ref: "#/components/parameters/userId"
-        responses:
-          "200":
-            description: Userprofile fetched successfully
-            content:
-              application/json:
-                schema:
-                  $ref: "#/components/schemas/userProfile"
+  /users/{userId}:
+    get:
+      tags:
+        - /users
+      summary: Get user Profile
+      parameters:
+        - $ref: "#/components/parameters/userId"
+      responses:
+        "200":
+          description: Userprofile fetched successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/userProfile"
 
-    /users/update/{userId}:
-      patch:
-        tags:
-          - /users
-        summary: Update user Profile
-        parameters:
-          - $ref: "#/components/parameters/userId"
-        responses:
-          "200":
-            description: Userprofile successfully updated
-            content:
-              application/json:
-                schema:
-                  $ref: "#/components/schemas/userProfile"
+  /users/update/{userId}:
+    patch:
+      tags:
+        - /users
+      summary: Update user Profile
+      parameters:
+        - $ref: "#/components/parameters/userId"
+      responses:
+        "200":
+          description: Userprofile successfully updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/userProfile"
 
 
   /seasons/{seasonId}/matchdays:
