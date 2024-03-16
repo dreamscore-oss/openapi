@@ -67,8 +67,9 @@ paths:
           description: Userprofile created successfully
           content:
             application/json:
-              components:
+              schema:
                 $ref: "#/components/schemas/userProfile"
+
 
 
 
@@ -76,10 +77,31 @@ paths:
     get:
       tags:
         - /users
+      summary: Get user Profile
+      parameters:
+        - $ref: "#/components/parameters/userId"
+      responses:
+        "200":
+          description: Userprofile fetched successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/userProfile"
 
     patch:
       tags:
-        - /users
+        - /users/update
+      summary: Update user Profile
+      parameters:
+        - $ref: "#/components/parameters/userId"
+      responses:
+        "200":
+          description: Userprofile successfully updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/userProfile"
+
 
   /leagues:
     get:
