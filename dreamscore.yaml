@@ -659,3 +659,12 @@ components:
           type: string
           format: uri
           description: The URL of the user's portrait
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+security:
+  - bearerAuth: []
