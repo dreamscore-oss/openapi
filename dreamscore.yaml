@@ -117,9 +117,15 @@ paths:
             application/json:
               schema:
                 items:
-                  $ref: "#/components/schemas/topPlayer"
+                  allOf:
+                    - $ref: "#/components/schemas/playerPreview"
+                    - properties:
+                        rank:
+                          type: integer
+                          format: int64
+                          description: The rank
 
-  /seasons/{seasonId}/matchdays/{matchdayId}/point-feed: #TODO: we need more info
+  /seasons/{seasonId}/matchdays/{matchdayId}/point-feed: # TODO: refactor, we need more info
     get:
       tags:
         - /seasons
@@ -182,7 +188,7 @@ paths:
                   - properties:
                       players:
                         items:
-                          # TODO: Player Preview Joëlle
+                          $ref: "#/components/schemas/playerPreview"
 
   /leagues:
     get:
@@ -408,7 +414,7 @@ paths:
         - name: status
           in: query
           schema:
-            type: integer # TODO: clarify int or string
+            type: integer
             format: int64
             description: The status of the transfer (0 - active, 1 - completed)
       responses:
@@ -906,17 +912,7 @@ components:
           format: uri
           description: The URL of the club's portrait
 
-    topPlayer: #TODO: player should be extracted into own component (Joëlle)
-      properties:
-        rank:
-          type: integer
-          format: int64
-          description: The rank
-        points:
-          type: integer
-          description: Number of points
-
-    pointFeed:
+    pointFeed: # TODO: refactor, we need more info
       properties:
         season:
           type: integer
