@@ -72,29 +72,74 @@ paths:
     get:
       tags:
         - /seasons
+      summary: Get all matchdays
+      parameters:
+        - $ref: "#/components/parameters/leagueId"
+      responses:
+        "200":
+          description: All matches returned.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: 
+                  $ref: "#/components/schemas/matchDay"
 
   /seasons/{seasonId}/matchdays/{matchdayId}/table: # point calculation based first season matchday until path matchdayId
-    get: # TODO: Query param? bundesliga, matchday points, season points
+    get: # TODO: Query param? bundesliga = 0, matchday points = 1, season points = 2
       tags:
         - /seasons
+      summary: Table of matchdays
+      parameters:
+        - $ref: "#components/parameters/matchdayId"
+        - $ref: "#/components/parameters/seasonId"
+        - name: status
+          in: query
+          schema:
+            type: integer
+            format: int64
+            description: The status ot the data for the table (bundesliga = 0, matchday points = 1, season points = 2)
+      responses: 
+        "200":
+          description: List data of matchDays
+          content:
+            application/json:
+              schema:
+                type: array
+                items:  
+                  $ref: "#/components/schemas/table" 
 
   /seasons/{seasonId}/matchdays/{matchdayId}/top-players:
     get: # TODO: Query param? total points, average points, points per minute, client filter: gk, fwd, md, df
       tags:
         - /seasons
+      summary: List of top players
+      parameters:
+        - $ref: "#components/parameters/matchdayId"
+        - $ref: "#/components/parameters/seasonId"
+        - name: status
+          in: query
+          schema: 
+            type: integer
+            format: int64
+            description: The status for the players points (total points = 0, average points = 1, points per minute = 2)
+      responses:
+        "200":
+          description: List of top players
+          content:
+            application/json:
+              schema:
+                type: array
+                items:  
+                  $ref: "#/components/schemas/topPlayer" 
 
   /seasons/{seasonId}/matchdays/{matchdayId}/point-feed:
     get:
       tags:
         - /seasons
       parameters:
-        - name: matchdayId
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int64
-            description: The ID of the matchday
+        - $ref: "#components/parameters/matchdayId"
+        - $ref: "#/components/parameters/seasonId"
         - in: query
           name: playerId
           required: false
@@ -102,45 +147,143 @@ paths:
             type: integer
             format: int64
             description: The ID of the player
+      responses:
+        "200":
+          description: Feed recieved
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/pointFeed" 
 
   /seasons/{seasonId}/matchdays/{matchdayId}/fixtures:
     get:
       tags:
         - /seasons
+      parameters:
+        - $ref: "#components/parameters/matchdayId"
+        - $ref: "#/components/parameters/seasonId"  
+      responses:
+        "200":
+          description: Fixtures recieved
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/fixture" 
 
   /seasons/{seasonId}/matchdays/{matchdayId}/fixtures/{fixtureId}:
     get:
       tags:
         - /seasons
+      parameters:
+        - $ref: "#components/parameters/matchdayId"
+        - $ref: "#/components/parameters/seasonId"
+        - $ref: "#/components/parameters/fixtureId"  
+      responses:
+        "200":
+          description: Fixtures recieved
+          content:
+            application/json:
+              schema:
+                  $ref: "#/components/schemas/fixture" 
 
   /leagues:
     get:
       tags:
         - /leagues
+      summary: Get all leagues a user is part of
+      responses:
+        "200":
+          description: Leagues successfully returned.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/leagueProfile"
 
     post:
       tags:
         - /leagues
+      summary: Creating a new League
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                League:
+                  type: string
+                  description: The name of the league
+                Settings:
+                  type: object
+                  description: Settings for the league
+      responses:
+        '200':
+          description: League properly created.
 
   /leagues/{leagueId}:
     get:
       tags:
         - /leagues
+      summary: Get a specific league
       parameters:
         - $ref: "#/components/parameters/leagueId"
+      responses:
+        "200":
+          description: League successfully returned.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/leagueProfile"
 
     patch:
       tags:
         - /leagues
+      summary: Update a league
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                League:
+                  type: string
+                  description: The name of the league
+                Settings:
+                  type: object
+                  description: Settings for the league
       parameters:
         - $ref: "#/components/parameters/leagueId"
+      responses:
+        "200":
+          description: League successfully updated.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/leagueProfile"
 
   /leagues/{leagueId}/ranking:
     get:
       tags:
         - /leagues
+      summary: Get all user with the ranking
       parameters:
         - $ref: "#/components/parameters/leagueId"
+      responses:
+        "200":
+          description: Got ranking of league
+          content: 
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/leagueRanking"
 
   /leagues/{leagueId}/users/{userId}:
     get:
@@ -461,6 +604,34 @@ components:
         format: int64
         description: The ID of the user
 
+    matchdayId:
+      in: path
+      name: matchdayId
+      required: true
+      schema:
+        type: integer
+        format: int64
+        description: The ID of the matchday
+
+    seasonId:
+      in: path
+      name: seasonId
+      required: true
+      schema:
+        type: integer
+        format: int64
+        description: The ID of the season
+
+    fixtureId:
+      in: path
+      name: fixtureId
+      required: true
+      schema:
+        type: integer
+        format: int64
+        description: The ID of the fixture
+
+
   schemas:
     user:
       type: object
@@ -702,6 +873,186 @@ components:
           type: string
           format: uri
           description: The URL of the user's portrait
+
+    leagueRanking:
+      properties: 
+        rank:
+          type: integer
+          format: int64
+          description: The rank
+        pointAmount:
+          type: integer
+          format: int64
+          description: The amount of points fot the user
+        user: 
+          $ref: "#/components/schemas/userProfile"
+
+    table:
+      properties:
+        club:
+          type: string
+          description: Club name
+        game: 
+          type: integer
+          description: Games played
+        points:
+          type: integer
+          description: Number of points
+        goalDifference:
+          type: integer
+          description: Goald difference
+
+    topPlayer:
+      properties:
+        rank:
+          type: integer
+          format: int64
+          description: The rank
+        points:
+          type: integer
+          description: Number of points
+        user: 
+          $ref: "#/components/schemas/userProfile"
+
+    pointFeed:
+      properties:
+        season:
+          type: integer
+          description: The season of the points
+        points:
+          type: integer
+          format: int64
+          description: The points recieved
+        type:
+          type: string
+          description: What kind of points
+        dateTime:
+          type: string
+          format: date-time
+          description: The date and time of the match
+
+    fixture:
+      properties:
+        team1:
+          type: string
+          description: Team 1 name
+        team2:
+          type: string
+          description: Team 2 name
+        score1:
+          type: integer
+          description: Team 1 score
+        score2:
+          type: integer
+          description: Team 2 score
+
+    userProfile:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: The ID of the user
+        username:
+          type: string
+          description: The name of the user
+        email:
+          type: string
+          format: email
+          description: The email of the user
+        portraitUrl:
+          type: string
+          format: uri
+          description: The URL of the user's portrait
+
+    matchDay:
+      type: object
+      properties:
+        day:
+          type: integer
+          format: int64
+          description: The match day of the points
+        dateTime:
+          type: string
+          format: date-time
+          description: The date and time of the match
+        points:
+          type: integer
+          format: int64
+          description: The points of the player
+        minutesPlayed:
+          type: integer
+          format: int64
+          description: The minutes played by the player
+        goals:
+          type: integer
+          format: int64
+          description: The goals of the player
+        assists:
+          type: integer
+          format: int64
+          description: The assists of the player
+        redCards:
+          type: integer
+          format: int64
+          description: The red cards of the player
+        yellowCards:
+          type: integer
+          format: int64
+          description: The yellow cards of the player
+        startingLineUp:
+          type: boolean
+          description: If the player was in the starting line-up
+        firstTeamId:
+          type: integer
+          format: int64
+          description: The ID of the first team
+        firstTeamScore:
+          type: integer
+          format: int64
+          description: The score of the first team
+        secondTeamId:
+          type: integer
+          format: int64
+          description: The ID of the second team
+        secondTeamScore:
+          type: integer
+          format: int64
+          description: The score of the second team
+
+    leagueProfile:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: The ID of the League
+        name:
+          type: string
+          description: The name of the League
+        settings:
+          type: object
+          properties:
+            gameMode:
+              type: integer
+              format: int64
+              description: The game mode of the League
+          ###Maybee the following settings can all be handled in the business logic with a customizable game mode?
+            teamSize:
+              type: integer
+              format: int64
+              description: The team size of the League
+            transferBudget:
+                type: number
+                format: float
+                description: The initial transfer budget of the League
+            maxPlayerOfOneClub:
+                type: integer
+                format: int64
+                description: The maximum number of players from one club that is allowed in this League
+            winterBreakReset:
+                type: boolean
+                description: If the teams will be reset after the winter break
 
   securitySchemes:
     bearerAuth:
