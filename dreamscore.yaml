@@ -18,6 +18,8 @@ tags:
     description: Operations related to the users
   - name: /seasons
     description: Operations related to the seasons
+  - name: clubs
+    description: Operations related to the clubs
   - name: /leagues
     description: Operations related to the leagues
   - name: /leagues/users
@@ -90,7 +92,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/clubTableItem"
+                  $ref: "#/components/schemas/clubPreview"
 
   /seasons/{seasonId}/matchdays/{matchdayId}/top-players:
     get:
@@ -150,6 +152,34 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/fixture"
+
+  /clubs/{clubId}:
+    get:
+      tags:
+        - clubs
+      summary: Get club details
+      parameters:
+        - $ref: "#/components/parameters/clubId"
+        - name: seasonId
+          in: query
+          schema:
+            type: integer
+            format: int64
+            description: The ID of the season
+      responses:
+        "200":
+          description: The details of the club
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/clubPreview"
+                  - type: object
+                    properties:
+                      players:
+                        type: array
+                        items:
+                          # TODO: Player Preview Joëlle              
 
   /leagues:
     get:
@@ -597,6 +627,15 @@ components:
         format: int64
         description: The ID of the matchday
 
+    clubId:
+      in: path
+      name: clubId
+      required: true
+      schema:
+        type: integer
+        format: int64
+        description: The ID of the club
+
     seasonId:
       in: path
       name: seasonId
@@ -874,7 +913,7 @@ components:
         user:
           $ref: "#/components/schemas/userProfile"
 
-    clubTableItem:
+    clubPreview:
       properties:
         rank:
           type: integer
