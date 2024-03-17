@@ -1,0 +1,12 @@
+# Ignore compiled binaries
+*.exe
+*.dll
+
+# Ignore temporary files
+temp/
+
+# Ignore log files
+*.log
+
+# Ignore IntelliJ IDEA project files
+idea/
