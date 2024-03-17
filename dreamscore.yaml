@@ -157,15 +157,14 @@ paths:
     get:
       tags:
         - /leagues
-      summary: Get all leagues a user is part of.
-      parameters:
+      summary: Get all leagues a user is part of
       responses:
         "200":
           description: Leagues successfully returned.
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/userProfile"
+                $ref: "#/components/schemas/leagueProfile"
 
 
     post:
@@ -196,12 +195,27 @@ paths:
         - /leagues
       parameters:
         - $ref: "#/components/parameters/leagueId"
+      responses:
+        "200":
+          description: League successfully returned.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/leagueProfile"
+
 
     patch:
       tags:
         - /leagues
       parameters:
         - $ref: "#/components/parameters/leagueId"
+      responses:
+        "200":
+          description: League successfully updated.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/leagueProfile"
 
   /leagues/{leagueId}/ranking:
     get:
@@ -559,8 +573,29 @@ components:
         name:
           type: string
           description: The name of the League
-
-
+        settings:
+          type: object
+          properties:
+            gameMode:
+              type: integer
+              format: int64
+              description: The game mode of the League
+          ###Maybee the following settings can all be handled in the business logic with a customizable game mode?
+            teamSize:
+              type: integer
+              format: int64
+              description: The team size of the League
+            transferBudget:
+                type: number
+                format: float
+                description: The initial transfer budget of the League
+            maxPlayerOfOneClub:
+                type: integer
+                format: int64
+                description: The maximum number of players from one club that is allowed in this League
+            winterBreakReset:
+                type: boolean
+                description: If the teams will be reset after the winter break
 
     playerPoints:
       type: array
@@ -568,7 +603,7 @@ components:
         type: object
         properties:
           season:
-            type: string
+            type: string # TODO change to integer (seasonId)?
             description: The season of the points
           pointsTotal:
             type: integer
