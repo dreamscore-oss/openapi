@@ -164,7 +164,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/leagueProfile"
+                type: array
+                items:
+                  $ref: "#/components/schemas/leagueProfile"
 
 
     post:
@@ -193,6 +195,7 @@ paths:
     get:
       tags:
         - /leagues
+      summary: Get a specific league
       parameters:
         - $ref: "#/components/parameters/leagueId"
       responses:
@@ -207,6 +210,20 @@ paths:
     patch:
       tags:
         - /leagues
+      summary: Update a league
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                League:
+                  type: string
+                  description: The name of the league
+                Settings:
+                  type: object
+                  description: Settings for the league
       parameters:
         - $ref: "#/components/parameters/leagueId"
       responses:
@@ -221,8 +238,19 @@ paths:
     get:
       tags:
         - /leagues
+      summary: Get all user with the ranking
       parameters:
         - $ref: "#/components/parameters/leagueId"
+      responses:
+        "200":
+          description: Got ranking of league
+          content: 
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/leagueRanking"
+
 
   /leagues/{leagueId}/users/{userId}:
     get:
@@ -818,6 +846,19 @@ components:
           type: string
           format: uri
           description: The URL of the user's portrait
+
+    leagueRanking:
+      properties: 
+        rank:
+          type: integer
+          format: int64
+          description: The rank
+        pointAmount:
+          type: integer
+          format: int64
+          description: The amount of points fot the user
+        user: 
+          $ref: "#/components/schemas/userProfile"
 
   securitySchemes:
     bearerAuth:
