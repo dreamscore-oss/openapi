@@ -86,7 +86,7 @@ paths:
       description: Returns the calculated points for each club from the first matchday of the season up to and including the specified matchday.
       parameters:
         - $ref: "#/components/parameters/seasonId"
-        - $ref: "#components/parameters/matchdayId"
+        - $ref: "#/components/parameters/matchdayId"
         - name: sort
           in: query
           schema:
@@ -109,7 +109,7 @@ paths:
       summary: List of top players
       parameters:
         - $ref: "#/components/parameters/seasonId"
-        - $ref: "#components/parameters/matchdayId"
+        - $ref: "#/components/parameters/matchdayId"
       responses:
         "200":
           description: List of top players
@@ -125,7 +125,7 @@ paths:
         - /seasons
       parameters:
         - $ref: "#/components/parameters/seasonId"
-        - $ref: "#components/parameters/matchdayId"
+        - $ref: "#/components/parameters/matchdayId"
         - in: query
           name: playerId
           required: false
@@ -148,7 +148,7 @@ paths:
         - /seasons
       parameters:
         - $ref: "#/components/parameters/seasonId"
-        - $ref: "#components/parameters/matchdayId"
+        - $ref: "#/components/parameters/matchdayId"
       responses:
         "200":
           description: List of fixtures
@@ -418,7 +418,7 @@ paths:
             application/json:
               schema:
                 items:
-                  $ref: "#/components/schemas/transfer"
+                  $ref: "#/components/schemas/transferPreview"
 
     post:
       tags:
@@ -454,21 +454,6 @@ paths:
                     description: The ID of the transfer
 
   /leagues/{leagueId}/transfers/{transferId}:
-    get:
-      tags:
-        - /leagues/transfers
-      summary: Get transfer details
-      parameters:
-        - $ref: "#/components/parameters/leagueId"
-        - $ref: "#/components/parameters/transferId"
-      responses:
-        "200":
-          description: The details of the transfer
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/transfer"
-
     patch:
       tags:
         - /leagues/transfers
@@ -494,13 +479,13 @@ paths:
     delete:
       tags:
         - /leagues/transfers
-      summary: Remove transfer
+      summary: Delete transfer
       parameters:
         - $ref: "#/components/parameters/leagueId"
         - $ref: "#/components/parameters/transferId"
       responses:
         "204":
-          description: The transfer was removed successfully
+          description: The transfer was deleted successfully
 
     post:
       tags:
@@ -544,7 +529,7 @@ paths:
         - $ref: "#/components/parameters/transferId"
         - $ref: "#/components/parameters/offerId"
       requestBody:
-        description: The new price for the offer
+        description: The new price and status for the offer
         required: true
         content:
           application/json:
@@ -554,6 +539,10 @@ paths:
                   type: number
                   format: float
                   description: The new price for the offer
+                status:
+                  type: integer
+                  format: int64
+                  description: The status of the offer (0 - active, 1 - accepted, 2 - declined)
       responses:
         "204":
           description: The price was updated successfully
@@ -561,7 +550,7 @@ paths:
     delete:
       tags:
         - /leagues/transfers/offers
-      summary: Decline offer
+      summary: Delete offer
       operationId: declineOffer
       parameters:
         - $ref: "#/components/parameters/leagueId"
@@ -569,7 +558,7 @@ paths:
         - $ref: "#/components/parameters/offerId"
       responses:
         "204":
-          description: The offer was declined successfully
+          description: The offer was deleted successfully
 
 components:
   parameters:
@@ -769,7 +758,7 @@ components:
                 format: float
                 description: The market value of the player
 
-    transfer:
+    transferPreview:
       properties:
         id:
           type: integer
@@ -788,14 +777,14 @@ components:
           format: date-time
           description: The date the transfer will be removed
         player:
-          $ref: "#/components/schemas/transferPlayer"
+          $ref: "#/components/schemas/playerPreview"
         user:
           $ref: "#/components/schemas/user"
         offers:
           items:
             $ref: "#/components/schemas/offer"
 
-    transferPlayer:
+    playerPreview:
       properties:
         id:
           type: integer
@@ -854,6 +843,10 @@ components:
           type: string
           format: date-time
           description: The date the offer was placed
+        status:
+          type: integer
+          format: int64
+          description: The status of the offer (0 - active, 1 - accepted, 2 - declined)
         user:
           $ref: "#/components/schemas/user"
 
