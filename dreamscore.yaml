@@ -236,11 +236,8 @@ paths:
                   format: uri
                   description: The URL of the league's portrait
                 settings:
-                  description: Settings for the league
-                  properties:
-                    private:
-                      type: boolean
-                      description: If the league is private
+                  $ref: "#/components/schemas/leagueSettings"
+
       responses:
         "201":
           description: League successfully created.
@@ -312,7 +309,6 @@ paths:
                 items:
                   $ref: "#/components/schemas/leagueRanking"
 
-    ###Not sure if this one is needed since the user details are already in the user profile and the same for every league.
   /leagues/{leagueId}/users/{userId}:
     get:
       tags:
@@ -337,27 +333,19 @@ paths:
         - $ref: "#/components/parameters/leagueId"
         - $ref: "#/components/parameters/userId"
       responses:
-        "200":
+        "204":
           description: User successfully added to the league.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/userLeagueInformation"
 
     delete:
       tags:
         - /leagues/users
-      summary: remove user from league
+      summary: Remove user from specified league
       parameters:
         - $ref: "#/components/parameters/leagueId"
         - $ref: "#/components/parameters/userId"
       responses:
-        "200":
+        "204":
           description: User successfully removed from the league.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/userLeagueInformation"
 
   /leagues/{leagueId}/users/{userId}/information:
     get:
@@ -373,7 +361,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/userLeagueInformation"
+                $ref: "#/components/schemas/userInformation"
 
   /leagues/{leagueId}/users/{userId}/points:
     get:
@@ -385,81 +373,77 @@ paths:
         - $ref: "#/components/parameters/userId"
       responses:
         "200":
-          description: User points successfully retrieved.
+          description: The points of the user
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/userLeaguePoints"
-
+                $ref: "#/components/schemas/userPoints"
 
   /leagues/{leagueId}/users/{userId}/market:
     get:
       tags:
         - /leagues/users
-      summary: Get all transfer listings of players of a chosen user in a chosen league
+      summary: Get market details of a chosen user in a chosen league
       parameters:
         - $ref: "#/components/parameters/leagueId"
         - $ref: "#/components/parameters/userId"
       responses:
         "200":
-          description: User transfer information successfully retrieved.
+          description: The market details of the user
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/transferMarket"
+                $ref: "#/components/schemas/market"
 
   /leagues/{leagueId}/users/{userId}/lineup:
     get:
       tags:
         - /leagues/users
-      summary: Get the line up of a chosen user in a chosen league
+      summary: Get the lineup of a chosen user in a chosen league
       parameters:
         - $ref: "#/components/parameters/leagueId"
         - $ref: "#/components/parameters/userId"
       responses:
         "200":
-          description: Line up successfully retrieved.
+          description: The lineup of the user
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/lineUp"
+                $ref: "#/components/schemas/lineup"
 
     patch:
       tags:
         - /leagues/users
-      summary: Update line up of a chosen user in a chosen league
+      summary: Update lineup of a chosen user in a chosen league
       parameters:
         - $ref: "#/components/parameters/leagueId"
         - $ref: "#/components/parameters/userId"
       requestBody:
-        description: The new line up of the user
+        description: The new lineup of the user
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/lineUp"
+              $ref: "#/components/schemas/lineup"
       responses:
         "204":
-          description: user line up successfully updated
+          description: The lineup was updated successfully
 
-  /leagues/{leagueId}/users/{userId}/team:
+  /leagues/{leagueId}/users/{userId}/squad:
     get:
       tags:
         - /leagues/users
-      summary: Retrieve team of a chosen user in a chosen league
+      summary: Retrieve squad of a chosen user in a chosen league
       parameters:
         - $ref: "#/components/parameters/leagueId"
         - $ref: "#/components/parameters/userId"
       responses:
         "200":
-          description: Team successfully retrieved.
+          description: The squad of the user
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/team"
-
-
-  ###I think this is a duplicate of the /leagues/{leagueId}/users/{userId}/market?
+                $ref: "#/components/schemas/squad"
 
   /leagues/{leagueId}/players/{playerId}:
     get:
@@ -499,7 +483,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/playerMarket"
+                $ref: "#/components/schemas/market"
 
   /leagues/{leagueId}/players/{playerId}/transfers:
     get:
@@ -753,13 +737,12 @@ components:
 
   schemas:
     user:
-      type: object
       properties:
         id:
           type: integer
           format: int64
           description: The ID of the user
-        username:
+        name:
           type: string
           description: The name of the user
         email:
@@ -771,43 +754,76 @@ components:
           format: uri
           description: The URL of the user's portrait
 
-    userLeagueInformation:
-      type: object
+    userInformation:
       properties:
-        user:
-          $ref: "#/components/schemas/user"
-        league:
-          $ref: "#/components/schemas/leagueProfile"
-        points:
-          $ref: "#/components/schemas/userLeaguePoints"
-        team:
-          $ref: "#/components/schemas/team"
-        budget:
-          $ref: "#/components/schemas/budget"
-
-    userLeaguePoints:
-      type: object
-      properties:
-        season:
-          type: string # TODO change to integer (seasonId)?
-          description: The season of the points
+        rank:
+          type: integer
+          format: int64
+          description: The rank of the user
+        matchdayVictories:
+          type: integer
+          format: int64
+          description: The victories of the user
         pointsTotal:
           type: integer
           format: int64
-          description: The total points of the manager
+          description: The total points of the user
+        pointsAverage:
+          type: number
+          format: float
+          description: The average points of the user
+        transfers:
+          type: integer
+          format: int64
+          description: The amount of transfers of the user
+        squadValue:
+          type: number
+          format: float
+          description: The value of the squad of the user
+        transferProfit:
+          type: number
+          format: float
+          description: The profit of the user
 
-    team:
-      type: object
+    userPoints:
+      items:
+        properties:
+          season:
+            type: integer
+            format: int64
+            description: The season of the points
+          pointsTotal:
+            type: integer
+            format: int64
+            description: The total points of the player
+          pointsAverage:
+            type: number
+            format: float
+            description: The average points of the player
+          matchDays:
+            items:
+              properties:
+                day:
+                  type: integer
+                  format: int64
+                  description: The match day of the points
+                dateTime:
+                  type: string
+                  format: date-time
+                  description: The date and time of the match
+                points:
+                  type: integer
+                  format: int64
+                  description: The points of the player
+
+    squad:
       properties:
         players:
           type: array
           items:
-            type: integer
-            format: int64
-            description: Array with the IDs of the players in the team
+            $ref: "#/components/schemas/playerPreview"
 
-    lineUp:
-      type: object
+    lineup:
       properties:
         players:
           type: array
@@ -816,50 +832,12 @@ components:
             format: int64
             description: Array with the IDs of the players in the line-up
 
-    budget:
-      type: number
-      format: float
-      description: The budget of the user in the league
-
-    leagueProfile:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int64
-          description: The ID of the League
-        name:
-          type: string
-          description: The name of the League
-        settings:
-          type: object
-          properties:
-            gameMode:
-              type: integer
-              format: int64
-              description: The game mode of the League
-            ###Maybee the following settings can all be handled in the business logic with a customizable game mode?
-            teamSize:
-              type: integer
-              format: int64
-              description: The team size of the League
-            transferBudget:
-              type: number
-              format: float
-              description: The initial transfer budget of the League
-            maxPlayerOfOneClub:
-              type: integer
-              format: int64
-              description: The maximum number of players from one club that is allowed in this League
-            winterBreakReset:
-              type: boolean
-              description: If the teams will be reset after the winter break
-
     playerPoints:
       items:
         properties:
           season:
-            type: string # TODO change to integer (seasonId)?
+            type: integer
+            format: int64
             description: The season of the points
           pointsTotal:
             type: integer
@@ -913,7 +891,7 @@ components:
         fixture:
           $ref: "#/components/schemas/fixture"
 
-    playerMarket:
+    market:
       properties:
         value:
           type: number
@@ -950,14 +928,6 @@ components:
                 type: number
                 format: float
                 description: The market value of the player
-
-    transferMarket:
-      type: object
-      properties:
-        offers:
-          type: array
-          items:
-            $ref: "#/components/schemas/transfer"
 
     transfer:
       type: object
@@ -1201,9 +1171,13 @@ components:
           type: integer
           format: int64
           description: The user limit of the League
+        startingBudget:
+          type: number
+          format: float
+          description: The starting budget of the League
         winterBreakReset:
           type: boolean
-          description: If the teams will be reset after the winter break
+          description: If the league will be reset after the winter break
 
   securitySchemes:
     bearerAuth:
@@ -1212,4 +1186,4 @@ components:
       bearerFormat: JWT
 
 security:
-  - bearerAuth: [ ]
+  - bearerAuth: []
