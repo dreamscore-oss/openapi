@@ -118,7 +118,7 @@ paths:
               schema:
                 items:
                   allOf:
-                    - $ref: "#/components/schemas/playerPreview"
+                    - $ref: "#/components/schemas/playerTransfer"
                     - properties:
                         rank:
                           type: integer
@@ -188,7 +188,7 @@ paths:
                   - properties:
                       players:
                         items:
-                          $ref: "#/components/schemas/playerPreview"
+                          $ref: "#/components/schemas/playerTransfer"
 
   /leagues:
     get:
@@ -363,11 +363,29 @@ paths:
     get:
       tags:
         - /leagues/players
+      summary: Get player details
+      parameters:
+        - $ref: "#/components/parameters/leagueId"
+        - $ref: "#/components/parameters/playerId"
+      responses:
+        "200":
+          description: The details of the player
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/player"
 
   /leagues/{leagueId}/players/{playerId}/information:
     get:
       tags:
         - /leagues/players
+      summary: Get player information
+      parameters:
+        - $ref: "#/components/parameters/leagueId"
+        - $ref: "#/components/parameters/playerId"
+      responses:
+        "200":
+          description: The information of the player
 
   /leagues/{leagueId}/players/{playerId}/points:
     get:
@@ -403,6 +421,16 @@ paths:
     get:
       tags:
         - /leagues/players
+      summary: Get player transfer details
+      parameters:
+        - $ref: "#/components/parameters/playerId"
+      responses:
+        "200":
+          description: The transfer details of the player
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/playerTransfer"
 
   /leagues/{leagueId}/transfers:
     get:
@@ -650,6 +678,23 @@ components:
         description: The ID of the fixture
 
   schemas:
+    team: 
+      properties:
+        id: 
+          type: integer
+          format: int64
+          description: The ID of the team
+        name:
+          type: string
+          description: The name of the team
+        logoUrl:
+          type: string
+          format: uri
+          description: The URL of the team's logo
+        coverUrl:
+          type: string
+          format: uri
+          description: The URL of the team's cover
     user:
       properties:
         id:
@@ -667,6 +712,55 @@ components:
           type: string
           format: uri
           description: The URL of the user's portrait
+
+    player:
+     properties:
+        id:
+          type: integer
+          format: int64
+          description: The ID of the player
+        firstName:
+          type: string
+          description: The first name of the player
+        lastName:
+          type: string
+          description: The last name of the player
+        portraitUrl:
+          type: string
+          format: uri
+          description: The URL of the player's portrait
+        status:
+          type: integer
+          format: int64
+          description: The status of the player (0 - fit, 1 - injured, 2 - stricken)
+        position:
+          type: integer
+          format: int64
+          description: The position of the player (0 - goalkeeper - gk, 1 - defense - def, 2 - midfield - mf, 3 - forward - fwd)
+        number:
+          type: integer
+          format: int64
+          description: The number of the player
+        totalPoints:
+          type: integer
+          format: int64
+          description: The total points of the player
+        averagePoints:
+          type: number
+          format: float
+          description: The average points of the player
+        marketValue:
+          type: number
+          format: float
+          description: The market value of the player
+        marketValueTrend:
+          type: integer
+          format: int64
+          description: The market value trend of the player (0 - stable, 1 - up, 2 - down)
+        team: 
+          $ref: "#/components/schemas/team"
+        user:
+          $ref: "#/components/schemas/user"
 
     playerPoints:
       items:
@@ -783,22 +877,20 @@ components:
           format: date-time
           description: The date the transfer will be removed
         player:
-          $ref: "#/components/schemas/playerPreview"
+          $ref: "#/components/schemas/playerTransfer"
         user:
           $ref: "#/components/schemas/user"
         offers:
           items:
             $ref: "#/components/schemas/offer"
 
-    playerPreview:
+    playerTransfer:
+      type: object
       properties:
         id:
           type: integer
           format: int64
           description: The ID of the player
-        firstName:
-          type: string
-          description: The first name of the player
         lastName:
           type: string
           description: The last name of the player
@@ -806,18 +898,10 @@ components:
           type: string
           format: uri
           description: The URL of the player's portrait
-        status:
-          type: integer
-          format: int64
-          description: The status of the player (0 - fit, 1 - injured, 2 - stricken)
         position:
           type: integer
           format: int64
           description: The position of the player (0 - goalkeeper - gk, 1 - defense - def, 2 - midfield - mf, 3 - forward - fwd)
-        number:
-          type: integer
-          format: int64
-          description: The number of the player
         totalPoints:
           type: integer
           format: int64
