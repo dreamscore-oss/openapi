@@ -118,7 +118,7 @@ paths:
               schema:
                 items:
                   allOf:
-                    - $ref: "#/components/schemas/playerTransfer"
+                    - $ref: "#/components/schemas/playerPreview"
                     - properties:
                         rank:
                           type: integer
@@ -188,7 +188,7 @@ paths:
                   - properties:
                       players:
                         items:
-                          $ref: "#/components/schemas/playerTransfer"
+                          $ref: "#/components/schemas/playerPreview"
 
   /leagues:
     get:
@@ -430,7 +430,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/playerTransfer"
+                $ref: "#/components/schemas/playerPreview"
 
   /leagues/{leagueId}/transfers:
     get:
@@ -877,14 +877,14 @@ components:
           format: date-time
           description: The date the transfer will be removed
         player:
-          $ref: "#/components/schemas/playerTransfer"
+          $ref: "#/components/schemas/playerPreview"
         user:
           $ref: "#/components/schemas/user"
         offers:
           items:
             $ref: "#/components/schemas/offer"
 
-    playerTransfer:
+    playerPreview:
       type: object
       properties:
         id:
