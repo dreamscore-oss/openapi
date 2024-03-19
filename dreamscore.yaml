@@ -468,7 +468,8 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/playerPoints"
+                items:
+                  $ref: "#/components/schemas/playerSeasonPoints"
 
   /leagues/{leagueId}/players/{playerId}/market:
     get:
@@ -832,30 +833,29 @@ components:
             format: int64
             description: Array with the IDs of the players in the line-up
 
-    playerPoints:
-      items:
-        properties:
-          season:
-            type: integer
-            format: int64
-            description: The season of the points
-          pointsTotal:
-            type: integer
-            format: int64
-            description: The total points of the player
-          pointsAverage:
-            type: number
-            format: float
-            description: The average points of the player
-          minutesPlayedAverage:
-            type: integer
-            format: int64
-            description: The average minutes played by the player
-          matchDays:
-            items:
-              $ref: "#/components/schemas/matchDayPoints"
+    playerSeasonPoints:
+      properties:
+        season:
+          type: integer
+          format: int64
+          description: The season of the points
+        pointsTotal:
+          type: integer
+          format: int64
+          description: The total points of the player
+        pointsAverage:
+          type: number
+          format: float
+          description: The average points of the player
+        minutesPlayedAverage:
+          type: integer
+          format: int64
+          description: The average minutes played by the player
+        matchDays:
+          items:
+            $ref: "#/components/schemas/playerMatchDayPoints"
 
-    matchDayPoints:
+    playerMatchDayPoints:
       properties:
         day:
           type: integer
@@ -885,9 +885,9 @@ components:
           type: integer
           format: int64
           description: The yellow cards of the player
-        startingLineUp:
+        startingLineup:
           type: boolean
-          description: If the player was in the starting line-up
+          description: If the player was in the starting lineup
         fixture:
           $ref: "#/components/schemas/fixture"
 
@@ -928,33 +928,6 @@ components:
                 type: number
                 format: float
                 description: The market value of the player
-
-    transfer:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int64
-          description: The ID of the transfer
-        price:
-          type: number
-          format: float
-          description: The price of the transfer
-        entryDateTime:
-          type: string
-          format: date-time
-          description: The date the transfer was added
-        exitDateTime:
-          type: string
-          format: date-time
-          description: The date the transfer will be removed
-        player:
-          $ref: "#/components/schemas/playerPreview"
-        user:
-          $ref: "#/components/schemas/user"
-        offers:
-          items:
-            $ref: "#/components/schemas/offer"
 
     transferPreview:
       properties:
