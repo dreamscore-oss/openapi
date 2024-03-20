@@ -16,10 +16,10 @@ servers:
 tags:
   - name: /users
     description: Operations related to the users
-  - name: /seasons
-    description: Operations related to the seasons
   - name: /clubs
     description: Operations related to the clubs
+  - name: /seasons
+    description: Operations related to the seasons
   - name: /leagues
     description: Operations related to the leagues
   - name: /leagues/users
@@ -379,23 +379,6 @@ paths:
               schema:
                 $ref: "#/components/schemas/market"
 
-  /leagues/{leagueId}/users/{userId}/transfers:
-    get:
-      tags:
-        - /leagues/users
-      summary: Get all transfers of a chosen user in a chosen league
-      parameters:
-        - $ref: "#/components/parameters/leagueIdPath"
-        - $ref: "#/components/parameters/userIdPath"
-      responses:
-        "200":
-          description: A list of transfers
-          content:
-            application/json:
-              schema:
-                items:
-                  #TODO: define transferWithId
-
   /leagues/{leagueId}/users/{userId}/lineup:
     get:
       tags:
@@ -461,7 +444,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/player"
+                $ref: "#/components/schemas/playerProfile"
 
   /leagues/{leagueId}/players/{playerId}/summary:
     get:
@@ -502,6 +485,7 @@ paths:
         - /leagues/players
       summary: Get player market details
       parameters:
+        - $ref: "#/components/parameters/leagueIdPath"
         - $ref: "#/components/parameters/playerIdPath"
       responses:
         "200":
@@ -525,7 +509,8 @@ paths:
           content:
             application/json:
               schema:
-                items: # TODO: define transferWithId
+                items:
+                  $ref: "#/components/schemas/transfer"
 
   /leagues/{leagueId}/transfers:
     get:
@@ -547,7 +532,7 @@ paths:
             application/json:
               schema:
                 items:
-                  $ref: "#/components/schemas/transferWithId"
+                  $ref: "#/components/schemas/transferPreview"
 
     post:
       tags:
@@ -946,10 +931,6 @@ components:
           type: string
           format: date-time
           description: The date the transfer will be removed
-        player:
-          $ref: "#/components/schemas/playerPreview"
-        user:
-          $ref: "#/components/schemas/userWithId"
         offers:
           items:
             $ref: "#/components/schemas/offerWithId"
@@ -958,6 +939,17 @@ components:
       allOf:
         - $ref: "#/components/schemas/transferId"
         - $ref: "#/components/schemas/transfer"
+
+    transferPreview:
+      allOf:
+        - $ref: "#/components/schemas/transferWithId"
+        - properties:
+            player:
+              allOf:
+                - $ref: "#/components/schemas/playerPreview"
+                - properties:
+                    user:
+                      $ref: "#/components/schemas/userWithId"
 
     playerId:
       properties:
@@ -990,6 +982,14 @@ components:
           type: integer
           format: int64
           description: The number of the player
+
+    playerProfile:
+      $ref: "#/components/schemas/player"
+      properties:
+        club:
+          $ref: "#/components/schemas/clubWithId"
+        user:
+          $ref: "#/components/schemas/userWithId"
 
     playerWithId:
       allOf:
