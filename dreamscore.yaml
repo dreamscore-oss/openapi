@@ -16,20 +16,24 @@ servers:
 tags:
   - name: /users
     description: Operations related to the users
-  - name: /clubs
-    description: Operations related to the clubs
+  - name: /competitions
+    description: Operations related to the competitions
   - name: /seasons
     description: Operations related to the seasons
+  - name: /competitors
+    description: Operations related to the competitors
+  - name: /schedules
+    description: Operations related to the schedules
+  - name: /players
+    description: Operations related to the players
   - name: /leagues
     description: Operations related to the leagues
-  - name: /leagues/users
-    description: Operations related to the users in the leagues
-  - name: /leagues/players
-    description: Operations related to the players
-  - name: /leagues/transfers
+  - name: /managers
+    description: Operations related to the managers
+  - name: /transfers
     description: Operations related to the transfers
-  - name: /leagues/transfers/offers
-    description: Operations related to the offers for the transfers
+  - name: /offers
+    description: Operations related to the offers
 
 paths:
   /users:
@@ -77,103 +81,167 @@ paths:
         "204":
           description: The user was updated successfully
 
-  /seasons/{seasonId}/clubs:
+  /seasons/{seasonId}/competitors:
     get:
       tags:
         - /seasons
-      summary: List of clubs on a specific matchday
-      description: Returns the calculated points for each club from the first matchday of the season up to and including the specified matchday.
+      summary: Get the competitors of a specific season
       parameters:
         - $ref: "#/components/parameters/seasonIdPath"
-        - $ref: "#/components/parameters/matchdayIdQuery"
       responses:
         "200":
-          description: List of clubs
+          description: List of competitors
           content:
             application/json:
               schema:
-                items:
-                  $ref: "#/components/schemas/clubPreview"
+                properties:
+                  competitors:
+                    items:
+                      $ref: "#/components/schemas/competitorPreview"
 
-  /seasons/{seasonId}/players:
+  /seasons/{seasonId}/schedules:
     get:
       tags:
         - /seasons
-      summary: List of players on a specific matchday
+      summary: Get the schedules of a specific season
       parameters:
         - $ref: "#/components/parameters/seasonIdPath"
-        - $ref: "#/components/parameters/matchdayIdQuery"
       responses:
         "200":
-          description: List of players
+          description: List of schedules
           content:
             application/json:
               schema:
-                items:
-                  $ref: "#/components/schemas/playerPreview"
+                properties:
+                  schedules:
+                    items:
+                      $ref: "#/components/schemas/schedule"
 
-  /seasons/{seasonId}/fixtures:
+  /seasons/{seasonId}/top-players:
     get:
       tags:
         - /seasons
-      summary: List of fixtures up to a specific matchday
+      summary: Get the top players of a specific season
       parameters:
         - $ref: "#/components/parameters/seasonIdPath"
-        - $ref: "#/components/parameters/matchdayIdQuery"
+        - $ref: "#/components/parameters/scheduleIdQuery"
       responses:
         "200":
-          description: List of fixtures
+          description: List of top players
           content:
             application/json:
               schema:
-                items:
-                  $ref: "#/components/schemas/fixture"
+                properties:
+                  topPlayers:
+                    items:
+                      $ref: "#/components/schemas/playerPreview"
 
-  /clubs/{clubId}/profile:
+  /competitors/{competitorId}:
     get:
       tags:
-        - /clubs
-      summary: Get club profile details
+        - /competitors
+      summary: Get the competitor details
       parameters:
-        - $ref: "#/components/parameters/clubIdPath"
+        - $ref: "#/components/parameters/competitorIdPath"
       responses:
         "200":
-          description: The club profile details
+          description: The details of the competitor
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/club"
+                $ref: "#/components/schemas/competitorSummary"
 
-  /clubs/{clubId}/summary:
+  /schedules/{scheduleId}:
     get:
       tags:
-        - /clubs
-      summary: Get club summary
-      parameters:
-        - $ref: "#/components/parameters/clubIdPath"
-      responses:
-        "200":
-          description: The club summary
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/clubSummary"
+        - /schedules
 
-  /clubs/{clubId}/players:
+  /players/{playerId}/profile:
     get:
       tags:
-        - /clubs
-      summary: Get club players
+        - /players
+      summary: Get player profile details
       parameters:
-        - $ref: "#/components/parameters/clubIdPath"
+        - $ref: "#/components/parameters/playerIdPath"
+        - $ref: "#/components/parameters/leagueIdQuery"
       responses:
         "200":
-          description: The players of the club
+          description: The player profile details
           content:
             application/json:
               schema:
-                items:
-                  $ref: "#/components/schemas/playerPreview"
+                $ref: "#/components/schemas/playerProfile"
+
+  /players/{playerId}/summary:
+    get:
+      tags:
+        - /players
+      summary: Get player summary
+      parameters:
+        - $ref: "#/components/parameters/playerIdPath"
+      responses:
+        "200":
+          description: The player summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/playerSummary"
+
+  /players/{playerId}/points:
+    get:
+      tags:
+        - /players
+      summary: Get player points
+      parameters:
+        - $ref: "#/components/parameters/playerIdPath"
+      responses:
+        "200":
+          description: The points of the player
+          content:
+            application/json:
+              schema:
+                properties:
+                  points:
+                    items:
+                      $ref: "#/components/schemas/playerSeasonPoints"
+
+  /players/{playerId}/market:
+    get:
+      tags:
+        - /players
+      summary: Get player market details
+      parameters:
+        - $ref: "#/components/parameters/playerIdPath"
+      responses:
+        "200":
+          description: The market details of the player
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/playerMarket"
+
+  /players/{playerId}/transfers:
+    get:
+      tags:
+        - /players
+      summary: Get player transfers
+      parameters:
+        - $ref: "#/components/parameters/playerIdPath"
+        - $ref: "#/components/parameters/leagueIdQuery"
+      responses:
+        "200":
+          description: A list of transfers
+          content:
+            application/json:
+              schema:
+                properties:
+                  marketValue:
+                    type: number
+                    format: float
+                    description: The market value of the player
+                  transfers:
+                    items:
+                      $ref: "#/components/schemas/transfer"
 
   /leagues:
     get:
@@ -186,22 +254,24 @@ paths:
           content:
             application/json:
               schema:
-                items:
-                  allOf:
-                    - $ref: "#/components/schemas/leagueWithId"
-                    - properties:
-                        rank:
-                          type: integer
-                          format: int64
-                          description: The rank of the user
-                        budget:
-                          type: number
-                          format: float
-                          description: The budget of the user
-                        squadValue:
-                          type: number
-                          format: float
-                          description: The squad value of the user
+                properties:
+                  leagues:
+                    items:
+                      allOf:
+                        - $ref: "#/components/schemas/leagueWithId"
+                        - properties:
+                            squadValue:
+                              type: number
+                              format: float
+                              description: The squad value of the user
+                            budget:
+                              type: number
+                              format: float
+                              description: The budget of the user
+                            playersInLineup:
+                              type: integer
+                              format: int64
+                              description: The amount of players in the lineup
 
     post:
       tags:
@@ -237,14 +307,11 @@ paths:
         - $ref: "#/components/parameters/leagueIdPath"
       responses:
         "200":
-          description: League successfully returned.
+          description: The details of the league
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/league"
-                properties:
-                  settings:
-                    $ref: "#/components/schemas/leagueSettings"
+                $ref: "#/components/schemas/leagueSummary"
 
     patch:
       tags:
@@ -265,30 +332,34 @@ paths:
         "204":
           description: League successfully updated.
 
-  /leagues/{leagueId}/users:
+  /leagues/{leagueId}/managers:
     get:
       tags:
-        - /leagues/users
-      summary: Get all users in a league
+        - /leagues
+      summary: Get all managers
       parameters:
         - $ref: "#/components/parameters/leagueIdPath"
+        - $ref: "#/components/parameters/scheduleIdQuery"
       responses:
         "200":
-          description: A list of users in the league
+          description: A list of managers in the league
           content:
             application/json:
               schema:
-                items:
-                  $ref: "#/components/schemas/userPreview"
+                properties:
+                  managers:
+                    items:
+                      $ref: "#/components/schemas/managerPreview"
 
     post:
       tags:
-        - /leagues/users
-      summary: Add user to specified league
+        - /leagues
+
+      summary: Add user as manager
       parameters:
         - $ref: "#/components/parameters/leagueIdPath"
       requestBody:
-        description: The user to be added to the league
+        description: The user to be added as manager to the league
         required: true
         content:
           application/json:
@@ -300,243 +371,182 @@ paths:
                   description: The ID of the user
       responses:
         "201":
-          description: User successfully added to the league.
+          description: User successfully added as manager to the league.
 
-  /leagues/{leagueId}/users/{userId}:
-    delete:
-      tags:
-        - /leagues/users
-      summary: Remove user from specified league
-      parameters:
-        - $ref: "#/components/parameters/leagueIdPath"
-        - $ref: "#/components/parameters/userIdPath"
-      responses:
-        "204":
-          description: User successfully removed from the league.
-
-  /leagues/{leagueId}/users/{userId}/profile:
-    get:
-      tags:
-        - /leagues/users
-      summary: Get user profile details for a chosen user in a chosen league
-      parameters:
-        - $ref: "#/components/parameters/leagueIdPath"
-        - $ref: "#/components/parameters/userIdPath"
-      responses:
-        "200":
-          description: The user profile details of the chosen user in the chosen league
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/user"
-
-  /leagues/{leagueId}/users/{userId}/summary:
-    get:
-      tags:
-        - /leagues/users
-      summary: Get user summary for a chosen user in a chosen league
-      parameters:
-        - $ref: "#/components/parameters/leagueIdPath"
-        - $ref: "#/components/parameters/userIdPath"
-      responses:
-        "200":
-          description: The user summary of the chosen user in the chosen league
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/userSummary"
-
-  /leagues/{leagueId}/users/{userId}/points:
-    get:
-      tags:
-        - /leagues/users
-      summary: Get only the points of a chosen user in a chosen league
-      parameters:
-        - $ref: "#/components/parameters/leagueIdPath"
-        - $ref: "#/components/parameters/userIdPath"
-      responses:
-        "200":
-          description: The points of the user
-          content:
-            application/json:
-              schema:
-                items:
-                  $ref: "#/components/schemas/userPoints"
-
-  /leagues/{leagueId}/users/{userId}/market:
-    get:
-      tags:
-        - /leagues/users
-      summary: Get market details of a chosen user in a chosen league
-      parameters:
-        - $ref: "#/components/parameters/leagueIdPath"
-        - $ref: "#/components/parameters/userIdPath"
-      responses:
-        "200":
-          description: The market details of the user
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/market"
-
-  /leagues/{leagueId}/users/{userId}/lineup:
-    get:
-      tags:
-        - /leagues/users
-      summary: Get the lineup of a chosen user in a chosen league
-      parameters:
-        - $ref: "#/components/parameters/leagueIdPath"
-        - $ref: "#/components/parameters/userIdPath"
-      responses:
-        "200":
-          description: The lineup of the user
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/lineup"
-
+  /managers/{managerId}:
     patch:
       tags:
-        - /leagues/users
-      summary: Update lineup of a chosen user in a chosen league
+        - /managers
+      summary: Update a manager
       parameters:
-        - $ref: "#/components/parameters/leagueIdPath"
-        - $ref: "#/components/parameters/userIdPath"
+        - $ref: "#/components/parameters/managerIdPath"
       requestBody:
-        description: The new lineup of the user
+        description: The new details of the manager
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/lineup"
+              $ref: "#/components/schemas/managerSettings"
+      responses:
+        "204":
+          description: The manager was updated successfully
+
+    delete:
+      tags:
+        - /managers
+      summary: Delete a manager
+      parameters:
+        - $ref: "#/components/parameters/managerIdPath"
+      responses:
+        "204":
+          description: The manager was deleted successfully
+
+  /managers/{managerId}/profile:
+    get:
+      tags:
+        - /managers
+      summary: Get manager profile details
+      parameters:
+        - $ref: "#/components/parameters/managerIdPath"
+      responses:
+        "200":
+          description: The manager profile details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/manager"
+
+  /managers/{managerId}/summary:
+    get:
+      tags:
+        - /managers
+      summary: Get manager summary
+      parameters:
+        - $ref: "#/components/parameters/managerIdPath"
+      responses:
+        "200":
+          description: The manager summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/managerSummary"
+
+  /managers/{managerId}/points:
+    get:
+      tags:
+        - /managers
+      summary: Get manager points
+      parameters:
+        - $ref: "#/components/parameters/managerIdPath"
+      responses:
+        "200":
+          description: The points of the manager
+          content:
+            application/json:
+              schema:
+                properties:
+                  points:
+                    items:
+                      $ref: "#/components/schemas/managerPoints"
+
+  /managers/{managerId}/lineup:
+    get:
+      tags:
+        - /managers
+      summary: Get manager lineup
+      parameters:
+        - $ref: "#/components/parameters/managerIdPath"
+      responses:
+        "200":
+          description: The lineup of the manager
+          content:
+            application/json:
+              schema:
+                properties:
+                  lineup:
+                    $ref: "#/components/schemas/lineup"
+
+    patch:
+      tags:
+        - /managers
+      summary: Update manager lineup
+      parameters:
+        - $ref: "#/components/parameters/managerIdPath"
+      requestBody:
+        description: The new lineup of the manager
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                lineup:
+                  $ref: "#/components/schemas/lineup"
       responses:
         "204":
           description: The lineup was updated successfully
 
-  /leagues/{leagueId}/users/{userId}/squad:
+  /managers/{managerId}/players:
     get:
       tags:
-        - /leagues/users
-      summary: Retrieve squad of a chosen user in a chosen league
+        - /managers
+      summary: Get player the manager owns
       parameters:
-        - $ref: "#/components/parameters/leagueIdPath"
-        - $ref: "#/components/parameters/userIdPath"
+        - $ref: "#/components/parameters/managerIdPath"
       responses:
         "200":
-          description: The squad of the user
+          description: The players of the manager
           content:
             application/json:
               schema:
-                items:
-                  $ref: "#/components/schemas/playerPreview"
+                properties:
+                  players:
+                    items:
+                      allOf:
+                        - $ref: "#/components/schemas/playerPreview"
+                        - properties:
+                            onTransferMarket:
+                              type: boolean
+                              description: If the player is in an active transfer
 
-  /leagues/{leagueId}/players/{playerId}/profile:
+  /managers/{managerId}/transfers:
     get:
       tags:
-        - /leagues/players
-      summary: Get player profile details
+        - /managers
+      summary: Get all transfers of the manager
       parameters:
-        - $ref: "#/components/parameters/leagueIdPath"
-        - $ref: "#/components/parameters/playerIdPath"
-      responses:
-        "200":
-          description: The player profile details
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/playerProfile"
-
-  /leagues/{leagueId}/players/{playerId}/summary:
-    get:
-      tags:
-        - /leagues/players
-      summary: Get player summary
-      parameters:
-        - $ref: "#/components/parameters/leagueIdPath"
-        - $ref: "#/components/parameters/playerIdPath"
-      responses:
-        "200":
-          description: The player summary
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/playerSummary"
-
-  /leagues/{leagueId}/players/{playerId}/points:
-    get:
-      tags:
-        - /leagues/players
-      summary: Get player points
-      parameters:
-        - $ref: "#/components/parameters/leagueIdPath"
-        - $ref: "#/components/parameters/playerIdPath"
-      responses:
-        "200":
-          description: The points of the player
-          content:
-            application/json:
-              schema:
-                items:
-                  $ref: "#/components/schemas/playerSeasonPoints"
-
-  /leagues/{leagueId}/players/{playerId}/market:
-    get:
-      tags:
-        - /leagues/players
-      summary: Get player market details
-      parameters:
-        - $ref: "#/components/parameters/leagueIdPath"
-        - $ref: "#/components/parameters/playerIdPath"
-      responses:
-        "200":
-          description: The market details of the player
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/market"
-
-  /leagues/{leagueId}/players/{playerId}/transfers:
-    get:
-      tags:
-        - /leagues/players
-      summary: Get all transfers of a chosen player in a chosen league
-      parameters:
-        - $ref: "#/components/parameters/leagueIdPath"
-        - $ref: "#/components/parameters/playerIdPath"
+        - $ref: "#/components/parameters/managerIdPath"
       responses:
         "200":
           description: A list of transfers
           content:
             application/json:
               schema:
-                items:
-                  $ref: "#/components/schemas/transfer"
+                properties:
+                  transfers:
+                    items:
+                      $ref: "#/components/schemas/transferPreview"
 
   /leagues/{leagueId}/transfers:
     get:
       tags:
-        - /leagues/transfers
+        - /leagues
       summary: Get all transfers
       parameters:
         - $ref: "#/components/parameters/leagueIdPath"
-        - name: status
-          in: query
-          schema:
-            type: integer
-            format: int64
-            description: The status of the transfer (0 - active, 1 - completed)
       responses:
         "200":
           description: A list of transfers
           content:
             application/json:
               schema:
-                items:
-                  $ref: "#/components/schemas/transferPreview"
+                properties:
+                  transfers:
+                    items:
+                      $ref: "#/components/schemas/transferPreviewWithManager"
 
     post:
       tags:
-        - /leagues/transfers
+        - /leagues
       summary: Add transfer
       parameters:
         - $ref: "#/components/parameters/leagueIdPath"
@@ -567,13 +577,12 @@ paths:
                     format: int64
                     description: The ID of the transfer
 
-  /leagues/{leagueId}/transfers/{transferId}:
+  /transfers/{transferId}:
     patch:
       tags:
-        - /leagues/transfers
+        - /transfers
       summary: Update transfer price
       parameters:
-        - $ref: "#/components/parameters/leagueIdPath"
         - $ref: "#/components/parameters/transferIdPath"
       requestBody:
         description: The new price for the transfer
@@ -592,22 +601,20 @@ paths:
 
     delete:
       tags:
-        - /leagues/transfers
+        - /transfers
       summary: Delete transfer
       parameters:
-        - $ref: "#/components/parameters/leagueIdPath"
         - $ref: "#/components/parameters/transferIdPath"
       responses:
         "204":
           description: The transfer was deleted successfully
 
-  /leagues/{leagueId}/transfers/{transferId}/offers:
+  /transfers/{transferId}/offers:
     post:
       tags:
-        - /leagues/transfers/offers
+        - /transfers
       summary: Place offer
       parameters:
-        - $ref: "#/components/parameters/leagueIdPath"
         - $ref: "#/components/parameters/transferIdPath"
       requestBody:
         description: The details of the offer
@@ -632,14 +639,12 @@ paths:
                     format: int64
                     description: The ID of the offer
 
-  /leagues/{leagueId}/transfers/{transferId}/offers/{offerId}:
+  /offers/{offerId}:
     patch:
       tags:
-        - /leagues/transfers/offers
+        - /offers
       summary: Update offer
       parameters:
-        - $ref: "#/components/parameters/leagueIdPath"
-        - $ref: "#/components/parameters/transferIdPath"
         - $ref: "#/components/parameters/offerIdPath"
       requestBody:
         description: The new price and status for the offer
@@ -662,11 +667,9 @@ paths:
 
     delete:
       tags:
-        - /leagues/transfers/offers
+        - /offers
       summary: Delete offer
       parameters:
-        - $ref: "#/components/parameters/leagueIdPath"
-        - $ref: "#/components/parameters/transferIdPath"
         - $ref: "#/components/parameters/offerIdPath"
       responses:
         "204":
@@ -678,6 +681,13 @@ components:
       in: path
       name: leagueId
       required: true
+      schema:
+        $ref: "#/components/schemas/leagueId"
+
+    leagueIdQuery:
+      in: query
+      name: leagueId
+      required: false
       schema:
         $ref: "#/components/schemas/leagueId"
 
@@ -709,26 +719,33 @@ components:
       schema:
         $ref: "#/components/schemas/userId"
 
-    matchdayIdPath:
+    managerIdPath:
       in: path
-      name: matchdayId
+      name: managerId
       required: true
       schema:
-        $ref: "#/components/schemas/matchdayId"
+        $ref: "#/components/schemas/managerId"
 
-    matchdayIdQuery:
+    scheduleIdPath:
+      in: path
+      name: scheduleId
+      required: true
+      schema:
+        $ref: "#/components/schemas/scheduleId"
+
+    scheduleIdQuery:
       in: query
-      name: matchdayId
-      required: true
+      name: scheduleId
+      required: false
       schema:
-        $ref: "#/components/schemas/matchdayId"
+        $ref: "#/components/schemas/scheduleId"
 
-    clubIdPath:
+    competitorIdPath:
       in: path
-      name: clubId
+      name: competitorId
       required: true
       schema:
-        $ref: "#/components/schemas/clubId"
+        $ref: "#/components/schemas/competitorId"
 
     seasonIdPath:
       in: path
@@ -736,13 +753,6 @@ components:
       required: true
       schema:
         $ref: "#/components/schemas/seasonId"
-
-    fixtureIdPath:
-      in: path
-      name: fixtureId
-      required: true
-      schema:
-        $ref: "#/components/schemas/fixtureId"
 
   schemas:
     userId:
@@ -771,53 +781,102 @@ components:
         - $ref: "#/components/schemas/userId"
         - $ref: "#/components/schemas/user"
 
-    userSummary:
+    managerId:
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: The ID of the manager
+
+    manager:
+      $ref: "#/components/schemas/user"
+
+    managerWithId:
+      allOf:
+        - $ref: "#/components/schemas/managerId"
+        - $ref: "#/components/schemas/manager"
+
+    managerSettings:
+      properties:
+        admin:
+          type: boolean
+          description: If the manager is an admin
+
+    managerWithSettingsAndId:
+      allOf:
+        - $ref: "#/components/schemas/managerWithId"
+        - properties:
+            settings:
+              $ref: "#/components/schemas/managerSettings"
+
+    managerPreview:
+      allOf:
+        - $ref: "#/components/schemas/managerWithId"
+        - properties:
+            totalPoints:
+              type: integer
+              format: int64
+              description: The total points of the manager
+            averagePoints:
+              type: number
+              format: float
+              description: The average points of the manager
+            squadValue:
+              type: number
+              format: float
+              description: The value of the squad of the manager
+
+    managerSummary:
       properties:
         rank:
           type: integer
           format: int64
-          description: The rank of the user
-        matchdayVictories:
+          description: The rank of the manager
+        scheduleVictories:
           type: integer
           format: int64
-          description: The victories of the user
+          description: The victories of the manager
         pointsTotal:
           type: integer
           format: int64
-          description: The total points of the user
+          description: The total points of the manager
         pointsAverage:
           type: number
           format: float
-          description: The average points of the user
+          description: The average points of the manager
         transfers:
           type: integer
           format: int64
-          description: The amount of transfers of the user
+          description: The amount of transfers of the manager
         squadValue:
           type: number
           format: float
-          description: The value of the squad of the user
+          description: The value of the squad of the manager
         transferProfit:
           type: number
           format: float
-          description: The profit of the user
+          description: The profit of the managar
 
-    userPoints:
+    managerPoints:
       allOf:
         - $ref: "#/components/schemas/seasonId"
         - properties:
             pointsTotal:
               type: integer
               format: int64
-              description: The total points of the user
+              description: The total points of the managar
             pointsAverage:
               type: number
               format: float
-              description: The average points of the user
-            matchDays:
+              description: The average points of the managar
+            scheduleVictories:
+              type: integer
+              format: int64
+              description: The victories of the managar
+            schedules:
               items:
                 allOf:
-                  - $ref: "#/components/schemas/matchdayId"
+                  - $ref: "#/components/schemas/scheduleId"
                   - properties:
                       dateTime:
                         type: string
@@ -826,89 +885,13 @@ components:
                       points:
                         type: integer
                         format: int64
-                        description: The points of the user
+                        description: The points of the managar
 
     lineup:
       items:
         type: integer
         format: int64
         description: The ID of the player
-
-    playerSeasonPoints:
-      allOf:
-        - $ref: "#/components/schemas/seasonId"
-        - properties:
-            pointsTotal:
-              type: integer
-              format: int64
-              description: The total points of the player
-            pointsAverage:
-              type: number
-              format: float
-              description: The average points of the player
-            minutesPlayedAverage:
-              type: integer
-              format: int64
-              description: The average minutes played by the player
-            matchDays:
-              items:
-                $ref: "#/components/schemas/playerMatchDayPoints"
-
-    playerMatchDayPoints:
-      allOf:
-        - $ref: "#/components/schemas/matchdayId"
-        - properties:
-            points:
-              type: integer
-              format: int64
-              description: The points of the player
-            minutesPlayed:
-              type: integer
-              format: int64
-              description: The minutes played by the player
-            goals:
-              type: integer
-              format: int64
-              description: The goals of the player
-            assists:
-              type: integer
-              format: int64
-              description: The assists of the player
-            redCards:
-              type: integer
-              format: int64
-              description: The red cards of the player
-            yellowCards:
-              type: integer
-              format: int64
-              description: The yellow cards of the player
-            startingLineup:
-              type: boolean
-              description: If the player was in the starting lineup
-            fixture:
-              $ref: "#/components/schemas/fixture"
-
-    market:
-      properties:
-        purchaseDateTime:
-          type: string
-          format: date-time
-          description: The date the player was purchased
-        purchaseValue:
-          type: number
-          format: float
-          description: The purchase value of the player
-        history:
-          items:
-            properties:
-              dateTime:
-                type: string
-                format: date-time
-                description: The date and time of the market value
-              value:
-                type: number
-                format: float
-                description: The market value of the player
 
     transferId:
       properties:
@@ -945,11 +928,18 @@ components:
         - $ref: "#/components/schemas/transferWithId"
         - properties:
             player:
+              $ref: "#/components/schemas/playerPreview"
+
+    transferPreviewWithManager:
+      allOf:
+        - $ref: "#/components/schemas/transferWithId"
+        - properties:
+            player:
               allOf:
                 - $ref: "#/components/schemas/playerPreview"
                 - properties:
-                    user:
-                      $ref: "#/components/schemas/userWithId"
+                    manager:
+                      $ref: "#/components/schemas/managerWithId"
 
     playerId:
       properties:
@@ -970,10 +960,6 @@ components:
           type: string
           format: uri
           description: The URL of the player's portrait
-        status:
-          type: integer
-          format: int64
-          description: The status of the player (0 - fit, 1 - injured, 2 - stricken)
         position:
           type: integer
           format: int64
@@ -982,30 +968,101 @@ components:
           type: integer
           format: int64
           description: The number of the player
-
-    playerProfile:
-      $ref: "#/components/schemas/player"
-      properties:
-        club:
-          $ref: "#/components/schemas/clubWithId"
-        user:
-          $ref: "#/components/schemas/userWithId"
+        status:
+          type: integer
+          format: int64
+          description: The status of the player (0 - fit, 1 - injured, 2 - stricken)
+        redCards:
+          type: integer
+          format: int64
+          description: The red cards of the player
+        yellowCards:
+          type: integer
+          format: int64
+          description: The yellow cards of the player
 
     playerWithId:
       allOf:
         - $ref: "#/components/schemas/playerId"
         - $ref: "#/components/schemas/player"
 
+    playerProfile:
+      $ref: "#/components/schemas/player"
+      properties:
+        competitor:
+          $ref: "#/components/schemas/competitorWithId"
+        manager:
+          $ref: "#/components/schemas/managerWithId"
+
+    playerPreview:
+      allOf:
+        - $ref: "#/components/schemas/playerWithId"
+        - properties:
+            totalPoints:
+              type: integer
+              format: int64
+              description: The total points of the player
+            averagePoints:
+              type: number
+              format: float
+              description: The average points of the player
+            pointsHistory: # Only last 5
+              items:
+                properties:
+                  dateTime:
+                    type: string
+                    format: date-time
+                    description: The date and time of the points
+                  points:
+                    type: integer
+                    format: int64
+                    description: The points of the player
+            marketHistory: # Only last 2
+              items:
+                properties:
+                  dateTime:
+                    type: string
+                    format: date-time
+                    description: The date and time of the market value
+                  value:
+                    type: number
+                    format: float
+                    description: The market value of the player
+            competitor:
+              $ref: "#/components/schemas/competitorWithId"
+
     playerSummary:
       properties:
-        pointsTotal:
+        totalPoints:
           type: integer
           format: int64
           description: The total points of the player
-        pointsAverage:
+        averagePoints:
           type: number
           format: float
           description: The average points of the player
+        pointsHistory: # Only last 7
+          items:
+            properties:
+              dateTime:
+                type: string
+                format: date-time
+                description: The date and time of the points
+              points:
+                type: integer
+                format: int64
+                description: The points of the player
+        marketHistory: # Only last 7
+          items:
+            properties:
+              dateTime:
+                type: string
+                format: date-time
+                description: The date and time of the market value
+              value:
+                type: number
+                format: float
+                description: The market value of the player
         goals:
           type: integer
           format: int64
@@ -1014,18 +1071,6 @@ components:
           type: integer
           format: int64
           description: The assists of the player
-        marketValue:
-          type: number
-          format: float
-          description: The market value of the player
-        marketValueTrend:
-          type: integer
-          format: int64
-          description: The market value trend of the player (0 - stable, 1 - up, 2 - down)
-        marketValueChange:
-          type: number
-          format: float
-          description: The change of the market value of the player
         matchesPlayed:
           type: integer
           format: int64
@@ -1034,7 +1079,7 @@ components:
           type: integer
           format: int64
           description: The matches available for the player
-        startingLineup:
+        startingLineupAppearances:
           type: integer
           format: int64
           description: The amount of times the player was in the starting lineup
@@ -1054,30 +1099,91 @@ components:
           type: integer
           format: int64
           description: The yellow cards of the player
-        fixtures:
+        schedules:
           items:
-            $ref: "#/components/schemas/fixture"
+            $ref: "#/components/schemas/schedule"
 
-    playerPreview:
+    playerSeasonPoints:
       allOf:
-        - $ref: "#/components/schemas/playerWithId"
+        - $ref: "#/components/schemas/seasonId"
         - properties:
-            totalPoints:
+            pointsTotal:
               type: integer
               format: int64
               description: The total points of the player
-            averagePoints:
+            pointsAverage:
               type: number
               format: float
               description: The average points of the player
-            marketValue:
-              type: number
-              format: float
-              description: The market value of the player
-            marketValueTrend:
+            minutesPlayedAverage:
               type: integer
               format: int64
-              description: The market value trend of the player (0 - stable, 1 - up, 2 - down)
+              description: The average minutes played by the player
+            schedules:
+              items:
+                $ref: "#/components/schemas/playerSchedulePoints"
+
+    playerSchedulePoints: # TODO: naming
+      allOf:
+        - $ref: "#/components/schemas/scheduleWithId"
+        - properties:
+            points:
+              type: integer
+              format: int64
+              description: The points of the player
+            minutesPlayed:
+              type: integer
+              format: int64
+              description: The minutes played by the player
+            goals:
+              type: integer
+              format: int64
+              description: The goals of the player
+            assists:
+              type: integer
+              format: int64
+              description: The assists of the player
+            redCards:
+              type: integer
+              format: int64
+              description: The red cards of the player
+            yellowCards:
+              type: integer
+              format: int64
+              description: The yellow cards of the player
+            startingLineup:
+              type: boolean
+              description: If the player was in the starting lineup
+
+    playerMarket:
+      properties:
+        lowestValue:
+          type: number
+          format: float
+          description: The lowest value of the player
+        lowestValueDateTime:
+          type: string
+          format: date-time
+          description: The date and time of the lowest value
+        highestValue:
+          type: number
+          format: float
+          description: The highest value of the player
+        highestValueDateTime:
+          type: string
+          format: date-time
+          description: The date and time of the highest value
+        history:
+          items:
+            properties:
+              dateTime:
+                type: string
+                format: date-time
+                description: The date and time of the market value
+              value:
+                type: number
+                format: float
+                description: The market value of the player
 
     offerId:
       properties:
@@ -1099,116 +1205,115 @@ components:
         status:
           type: integer
           format: int64
-          description: The status of the offer (0 - active, 1 - accepted, 2 - declined)
-        user:
-          $ref: "#/components/schemas/userWithId"
+          description: The status of the offer (0 - active, 1 - accepted, 2 - declined, 3 - drafted)
+        manager:
+          $ref: "#/components/schemas/managerWithId"
 
     offerWithId:
       allOf:
         - $ref: "#/components/schemas/offerId"
         - $ref: "#/components/schemas/offer"
 
-    userPreview:
-      allOf:
-        - $ref: "#/components/schemas/userWithId"
-        - properties:
-            totalPoints:
-              type: integer
-              format: int64
-              description: The total points of the user
-            averagePoints:
-              type: number
-              format: float
-              description: The average points of the user
-            squadValue:
-              type: number
-              format: float
-              description: The value of the squad of the user
-
-    club:
-      properties:
-        name:
-          type: string
-          description: The name of the club
-        portraitUrl:
-          type: string
-          format: uri
-          description: The URL of the club's portrait
-
-    clubId:
+    competitorId:
       properties:
         id:
           type: integer
           format: int64
-          description: The ID of the club
+          description: The ID of the competitor
 
-    clubWithId:
-      allOf:
-        - $ref: "#/components/schemas/clubId"
-        - $ref: "#/components/schemas/club"
+    competitor:
+      properties:
+        name:
+          type: string
+          description: The name of the competitor
+        abbreviation:
+          type: string
+          description: The abbreviation of the competitor
+        portraitUrl:
+          type: string
+          format: uri
+          description: The URL of the competitor's portrait
 
-    clubWithIdAndScore:
+    competitorWithId:
       allOf:
-        - $ref: "#/components/schemas/clubWithId"
+        - $ref: "#/components/schemas/competitorId"
+        - $ref: "#/components/schemas/competitor"
+
+    competitorWithIdAndScore:
+      allOf:
+        - $ref: "#/components/schemas/competitorWithId"
         - properties:
             score:
               type: integer
               format: int64
-              description: The score of the club
+              description: The score of the competitor
 
-    clubPreview:
+    competitorPreview:
       allOf:
-        - $ref: "#/components/schemas/clubWithId"
+        - $ref: "#/components/schemas/competitorWithId"
         - properties:
             matchesPlayed:
               type: integer
               format: int64
-              description: The matches played by the club
+              description: The matches played by the competitor
             goalDifference:
               type: integer
               format: int64
-              description: The goal difference of the club
+              description: The goal difference of the competitor
             points:
               type: integer
               format: int64
-              description: The amount of points for the club
+              description: The amount of points for the competitor
 
-    clubSummary:
-      properties:
-        rank:
-          type: integer
-          format: int64
-          description: The rank of the club
-        matchesPlayed:
-          type: integer
-          format: int64
-          description: The matches played by the club
-        goalDifference:
-          type: integer
-          format: int64
-          description: The goal difference of the club
-        points:
-          type: integer
-          format: int64
-          description: The amount of points for the club
+    competitorSummary:
+      allOf:
+        - $ref: "#/components/schemas/competitor"
+        - properties:
+            rank:
+              type: integer
+              format: int64
+              description: The rank of the competitor
+            wins:
+              type: integer
+              format: int64
+              description: The victories of the competitor
+            draws:
+              type: integer
+              format: int64
+              description: The draws of the competitor
+            losses:
+              type: integer
+              format: int64
+              description: The losses of the competitor
+            squadValue:
+              type: number
+              format: float
+              description: The value of the competitor
+            players:
+              items:
+                $ref: "#/components/schemas/playerPreview"
 
-    fixtureId:
+    scheduleId:
       properties:
         id:
           type: integer
           format: int64
-          description: The ID of the fixture
+          description: The ID of the schedule
 
-    fixture: # TODO: bids
+    schedule:
       properties:
         dateTime:
           type: string
           format: date-time
-          description: The date and time of the match
-        firstClub:
-          $ref: "#/components/schemas/clubWithIdAndScore"
-        secondClub:
-          $ref: "#/components/schemas/clubWithIdAndScore"
+          description: The date and time of the event
+        competitors:
+          items:
+            $ref: "#/components/schemas/competitorWithIdAndScore"
+
+    scheduleWithId:
+      allOf:
+        - $ref: "#/components/schemas/scheduleId"
+        - $ref: "#/components/schemas/schedule"
 
     seasonId:
       properties:
@@ -1216,13 +1321,6 @@ components:
           type: integer
           format: int64
           description: The ID of the season
-
-    matchdayId:
-      properties:
-        id:
-          type: integer
-          format: int64
-          description: The ID of the matchday
 
     leagueId:
       properties:
@@ -1236,6 +1334,9 @@ components:
         name:
           type: string
           description: The name of the League
+        description:
+          type: string
+          description: The description of the League
         portraitUrl:
           type: string
           format: uri
@@ -1251,14 +1352,21 @@ components:
         private:
           type: boolean
           description: If the League is private
+        drawPlayers:
+          type: boolean
+          description: If the League will draw players
+        competition:
+          type: integer
+          format: int64
+          description: The competition of the League (0 - SFL)
         squadLimit:
           type: integer
           format: int64
           description: The squad limit of the League
-        userLimit:
+        managerLimit:
           type: integer
           format: int64
-          description: The user limit of the League
+          description: The manager limit of the League
         startingBudget:
           type: number
           format: float
@@ -1266,6 +1374,16 @@ components:
         winterBreakReset:
           type: boolean
           description: If the league will be reset after the winter break
+
+    leagueSummary:
+      allOf:
+        - $ref: "#/components/schemas/league"
+        - properties:
+            settings:
+              $ref: "#/components/schemas/leagueSettings"
+            managers:
+              items:
+                $ref: "#/components/schemas/managerWithSettingsAndId"
 
   securitySchemes:
     bearerAuth:
@@ -1275,3 +1393,6 @@ components:
 
 security:
   - bearerAuth: []
+# TODO: Manager Transfer Tab
+# Point view for schedule on player and on match
+# naming for schedule and the match itself
