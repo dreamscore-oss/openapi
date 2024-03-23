@@ -151,11 +151,6 @@ paths:
               schema:
                 $ref: "#/components/schemas/competitorSummary"
 
-  /schedules/{scheduleId}:
-    get:
-      tags:
-        - /schedules
-
   /players/{playerId}/profile:
     get:
       tags:
@@ -881,7 +876,7 @@ components:
                       dateTime:
                         type: string
                         format: date-time
-                        description: The date and time of the match
+                        description: The date and time of the schedule
                       points:
                         type: integer
                         format: int64
@@ -1071,14 +1066,14 @@ components:
           type: integer
           format: int64
           description: The assists of the player
-        matchesPlayed:
+        schedulesPlayed:
           type: integer
           format: int64
-          description: The matches played by the player
-        matchesAvailable:
+          description: The schedules played by the player
+        schedulesAvailable:
           type: integer
           format: int64
-          description: The matches available for the player
+          description: The schedules available for the player
         startingLineupAppearances:
           type: integer
           format: int64
@@ -1123,7 +1118,7 @@ components:
               items:
                 $ref: "#/components/schemas/playerSchedulePoints"
 
-    playerSchedulePoints: # TODO: naming
+    playerSchedulePoints:
       allOf:
         - $ref: "#/components/schemas/scheduleWithId"
         - properties:
@@ -1252,10 +1247,10 @@ components:
       allOf:
         - $ref: "#/components/schemas/competitorWithId"
         - properties:
-            matchesPlayed:
+            schedulesPlayed:
               type: integer
               format: int64
-              description: The matches played by the competitor
+              description: The schedules played by the competitor
             goalDifference:
               type: integer
               format: int64
@@ -1393,6 +1388,3 @@ components:
 
 security:
   - bearerAuth: []
-# TODO: Manager Transfer Tab
-# Point view for schedule on player and on match
-# naming for schedule and the match itself
