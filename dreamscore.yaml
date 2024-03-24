@@ -155,18 +155,29 @@ paths:
 
   /matches/{matchId}:
     get:
-      tags: 
+      tags:
         - /matches
+      summary: Get the match details
+      parameters:
+        - $ref: "#/components/parameters/matchIdPath"
 
-  /matches/{matchId}/clubs/{clubId}: 
+  /matches/{matchId}/clubs/{clubId}:
     get:
-      tags: 
+      tags:
         - /matches
-  
+      summary: Get the club details of a specific match
+      parameters:
+        - $ref: "#/components/parameters/matchIdPath"
+        - $ref: "#/components/parameters/clubIdPath"
+
   /matches/{matchId}/players/{playerId}:
     get:
-      tags: 
+      tags:
         - /matches
+      summary: Get the player details of a specific match
+      parameters:
+        - $ref: "#/components/parameters/matchIdPath"
+        - $ref: "#/components/parameters/playerIdPath"
 
   /players/{playerId}/profile:
     get:
@@ -752,6 +763,13 @@ components:
       schema:
         $ref: "#/components/schemas/matchdayId"
 
+    matchIdPath:
+      in: path
+      name: matchId
+      required: true
+      schema:
+        $ref: "#/components/schemas/matchId"
+
     clubIdPath:
       in: path
       name: clubId
@@ -1312,7 +1330,7 @@ components:
           format: int64
           description: The ID of the matchday
 
-    matchday:
+    matchday: # TODO: rather use match type
       properties:
         dateTime:
           type: string
@@ -1326,6 +1344,28 @@ components:
       allOf:
         - $ref: "#/components/schemas/matchdayId"
         - $ref: "#/components/schemas/matchday"
+
+    matchId:
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: The ID of the match
+
+    match:
+      properties:
+        dateTime:
+          type: string
+          format: date-time
+          description: The date and time of the match
+        clubs:
+          items:
+            $ref: "#/components/schemas/clubWithIdAndScore"
+
+    matchWithId:
+      allOf:
+        - $ref: "#/components/schemas/matchId"
+        - $ref: "#/components/schemas/match"
 
     seasonId:
       properties:
@@ -1405,8 +1445,8 @@ components:
 
 security:
   - bearerAuth: []
-
 # TODOS:
 # - Specify matches endpoints
-# - Adjust seasons matchdays endpoint to also include the matchdayId
-# - Adjust players/points and managers/points endpoint seasons should include max matchdays
+# - Adjust seasons matchdays endpoint to also include the day and id
+# - Adjust matchday must have the day, id and a list of matches
+# - Adjust players/points and managers/points endpoint seasons should include matchdays availabl in the entire season
