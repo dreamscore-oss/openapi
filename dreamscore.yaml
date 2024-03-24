@@ -117,7 +117,18 @@ paths:
                 properties:
                   matchdays:
                     items:
-                      $ref: "#/components/schemas/matchday"
+                      properties:
+                        id:
+                          type: integer
+                          format: int64
+                          description: The ID of the matchday
+                        day:
+                          type: integer
+                          format: int64
+                          description: The day of the matchday
+                        matches:
+                          items:
+                            $ref: "#/components/schemas/matchWithId"
 
   /seasons/{seasonId}/top-players:
     get:
@@ -160,6 +171,67 @@ paths:
       summary: Get the match details
       parameters:
         - $ref: "#/components/parameters/matchIdPath"
+      responses:
+        "200":
+          description: The details of the match
+          content:
+            application/json:
+              schema:
+                properties:
+                  clubs:
+                    items:
+                      allOf:
+                        - $ref: "#/components/schemas/clubWithIdAndScore"
+                        - properties:
+                            lineup:
+                              properties:
+                                dateTime:
+                                  type: string
+                                  format: date-time
+                                  description: The date and time of the lineup
+                                confirmed:
+                                  type: boolean
+                                  description: If the lineup is confirmed
+                                players:
+                                  items:
+                                    properties:
+                                      id:
+                                        type: integer
+                                        format: int64
+                                        description: The ID of the player
+                                      firstName:
+                                        type: string
+                                        description: The first name of the player
+                                      lastName:
+                                        type: string
+                                        description: The last name of the player
+                                      startingLineup:
+                                        type: boolean
+                                        description: If the player is in the starting lineup
+                  feed:
+                    items:
+                      properties:
+                        dateTime:
+                          type: string
+                          format: date-time
+                          description: The date and time of the feed
+                        type:
+                          type: integer
+                          format: int64
+                          description: The type of the event
+                        players:
+                          items:
+                            properties:
+                              id:
+                                type: integer
+                                format: int64
+                                description: The ID of the player
+                              firstName:
+                                type: string
+                                description: The first name of the player
+                              lastName:
+                                type: string
+                                description: The last name of the player
 
   /matches/{matchId}/clubs/{clubId}:
     get:
@@ -169,6 +241,52 @@ paths:
       parameters:
         - $ref: "#/components/parameters/matchIdPath"
         - $ref: "#/components/parameters/clubIdPath"
+      responses:
+        "200":
+          description: The details of the club
+          content:
+            application/json:
+              schema:
+                properties:
+                  rank:
+                    type: integer
+                    format: int64
+                    description: The rank of the club
+                  clubs:
+                    items:
+                      $ref: "#/components/schemas/clubWithIdAndScore"
+                  players:
+                    items:
+                      properties:
+                        id:
+                          type: integer
+                          format: int64
+                          description: The ID of the player
+                        firstName:
+                          type: string
+                          description: The first name of the player
+                        lastName:
+                          type: string
+                          description: The last name of the player
+                        portraitUrl:
+                          type: string
+                          format: uri
+                          description: The URL of the player's portrait
+                        points:
+                          type: integer
+                          format: int64
+                          description: The points of the player
+                        feed:
+                          items:
+                            properties:
+                              dateTime:
+                                type: string
+                                format: date-time
+                                description: The date and time of the feed
+                              type:
+                                type: integer
+                                format: int64
+                                description: The type of the event
 
   /matches/{matchId}/players/{playerId}:
     get:
@@ -178,6 +296,41 @@ paths:
       parameters:
         - $ref: "#/components/parameters/matchIdPath"
         - $ref: "#/components/parameters/playerIdPath"
+      responses:
+        "200":
+          description: The details of the player
+          content:
+            application/json:
+              schema:
+                properties:
+                  id:
+                    type: integer
+                    format: int64
+                    description: The ID of the player
+                  firstName:
+                    type: string
+                    description: The first name of the player
+                  lastName:
+                    type: string
+                    description: The last name of the player
+                  portraitUrl:
+                    type: string
+                    format: uri
+                    description: The URL of the player's portrait
+                  clubs:
+                    items:
+                      $ref: "#/components/schemas/clubWithIdAndScore"
+                  feed:
+                    items:
+                      properties:
+                        dateTime:
+                          type: string
+                          format: date-time
+                          description: The date and time of the feed
+                        type:
+                          type: integer
+                          format: int64
+                          description: The type of the event
 
   /players/{playerId}/profile:
     get:
@@ -862,7 +1015,7 @@ components:
           type: integer
           format: int64
           description: The rank of the manager
-        matchdayVictories:
+        victories:
           type: integer
           format: int64
           description: The victories of the manager
@@ -889,17 +1042,9 @@ components:
 
     managerPoints:
       allOf:
-        - $ref: "#/components/schemas/seasonId"
+        - $ref: "#/components/schemas/seasonWithId"
         - properties:
-            pointsTotal:
-              type: integer
-              format: int64
-              description: The total points of the managar
-            pointsAverage:
-              type: number
-              format: float
-              description: The average points of the managar
-            matchdayVictories:
+            victories:
               type: integer
               format: int64
               description: The victories of the managar
@@ -908,6 +1053,10 @@ components:
                 allOf:
                   - $ref: "#/components/schemas/matchdayId"
                   - properties:
+                      day:
+                        type: integer
+                        format: int64
+                        description: The day of the matchday
                       dateTime:
                         type: string
                         format: date-time
@@ -1105,7 +1254,7 @@ components:
           type: integer
           format: int64
           description: The matchdays played by the player
-        matchdaysAvailable: # TODO: Check naming
+        matchdaysAvailable:
           type: integer
           format: int64
           description: The matchdays available for the player
@@ -1131,31 +1280,39 @@ components:
           description: The yellow cards of the player
         matchdays:
           items:
-            $ref: "#/components/schemas/matchday"
+            properties:
+              id:
+                type: integer
+                format: int64
+                description: The ID of the matchday
+              day:
+                type: integer
+                format: int64
+                description: The day of the matchday
+              match:
+                $ref: "#/components/schemas/matchWithId"
 
     playerSeasonPoints:
       allOf:
-        - $ref: "#/components/schemas/seasonId"
+        - $ref: "#/components/schemas/seasonWithId"
         - properties:
-            pointsTotal:
-              type: integer
-              format: int64
-              description: The total points of the player
-            pointsAverage:
-              type: number
-              format: float
-              description: The average points of the player
-            minutesPlayedAverage:
-              type: integer
-              format: int64
-              description: The average minutes played by the player
             matchdays:
               items:
-                $ref: "#/components/schemas/playerMatchdayPoints"
+                properties:
+                  id:
+                    type: integer
+                    format: int64
+                    description: The ID of the matchday
+                  day:
+                    type: integer
+                    format: int64
+                    description: The day of the matchday
+                  match:
+                    $ref: "#/components/schemas/playerMatchPoints"
 
-    playerMatchdayPoints:
+    playerMatchPoints:
       allOf:
-        - $ref: "#/components/schemas/matchdayWithId"
+        - $ref: "#/components/schemas/matchWithId"
         - properties:
             points:
               type: integer
@@ -1181,28 +1338,16 @@ components:
               type: integer
               format: int64
               description: The yellow cards of the player
+            substitutions:
+              type: integer
+              format: int64
+              description: The substitutions of the player
             startingLineup:
               type: boolean
               description: If the player was in the starting lineup
 
     playerMarket:
       properties:
-        lowestValue:
-          type: number
-          format: float
-          description: The lowest value of the player
-        lowestValueDateTime:
-          type: string
-          format: date-time
-          description: The date and time of the lowest value
-        highestValue:
-          type: number
-          format: float
-          description: The highest value of the player
-        highestValueDateTime:
-          type: string
-          format: date-time
-          description: The date and time of the highest value
         history:
           items:
             properties:
@@ -1330,21 +1475,6 @@ components:
           format: int64
           description: The ID of the matchday
 
-    matchday: # TODO: rather use match type
-      properties:
-        dateTime:
-          type: string
-          format: date-time
-          description: The date and time of the event
-        clubs:
-          items:
-            $ref: "#/components/schemas/clubWithIdAndScore"
-
-    matchdayWithId:
-      allOf:
-        - $ref: "#/components/schemas/matchdayId"
-        - $ref: "#/components/schemas/matchday"
-
     matchId:
       properties:
         id:
@@ -1373,6 +1503,17 @@ components:
           type: integer
           format: int64
           description: The ID of the season
+
+    season:
+      properties:
+        name:
+          type: string
+          description: The name of the season
+
+    seasonWithId:
+      allOf:
+        - $ref: "#/components/schemas/seasonId"
+        - $ref: "#/components/schemas/season"
 
     leagueId:
       properties:
@@ -1445,8 +1586,3 @@ components:
 
 security:
   - bearerAuth: []
-# TODOS:
-# - Specify matches endpoints
-# - Adjust seasons matchdays endpoint to also include the day and id
-# - Adjust matchday must have the day, id and a list of matches
-# - Adjust players/points and managers/points endpoint seasons should include matchdays availabl in the entire season
