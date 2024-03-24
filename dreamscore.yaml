@@ -24,6 +24,8 @@ tags:
     description: Operations related to the clubs
   - name: /matchdays
     description: Operations related to the matchdays
+  - name: /matches
+    description: Operations related to the matches
   - name: /players
     description: Operations related to the players
   - name: /leagues
@@ -150,6 +152,21 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/clubsummary"
+
+  /matches/{matchId}:
+    get:
+      tags: 
+        - /matches
+
+  /matches/{matchId}/clubs/{clubId}: 
+    get:
+      tags: 
+        - /matches
+  
+  /matches/{matchId}/players/{playerId}:
+    get:
+      tags: 
+        - /matches
 
   /players/{playerId}/profile:
     get:
@@ -1070,7 +1087,7 @@ components:
           type: integer
           format: int64
           description: The matchdays played by the player
-        matchdaysAvailable:
+        matchdaysAvailable: # TODO: Check naming
           type: integer
           format: int64
           description: The matchdays available for the player
@@ -1388,3 +1405,8 @@ components:
 
 security:
   - bearerAuth: []
+
+# TODOS:
+# - Specify matches endpoints
+# - Adjust seasons matchdays endpoint to also include the matchdayId
+# - Adjust players/points and managers/points endpoint seasons should include max matchdays
