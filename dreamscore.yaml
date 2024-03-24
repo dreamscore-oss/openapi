@@ -1133,9 +1133,9 @@ components:
               description: The average minutes played by the player
             matchdays:
               items:
-                $ref: "#/components/schemas/playermatchdayPoints"
+                $ref: "#/components/schemas/playerMatchdayPoints"
 
-    playermatchdayPoints:
+    playerMatchdayPoints:
       allOf:
         - $ref: "#/components/schemas/matchdayWithId"
         - properties:
